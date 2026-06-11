@@ -17,7 +17,6 @@ from scipy.optimize import linprog
 
 st.set_page_config(
     page_title="VN AIDEOM-VN | Decision Optimization Dashboard",
-    page_icon="🇻🇳",
     layout="wide",
     initial_sidebar_state="expanded",
 )
