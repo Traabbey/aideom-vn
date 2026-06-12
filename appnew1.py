@@ -1406,4211 +1406,1132 @@ def show_assignment_structure(page_no):
 
 
 # =========================
-# Pages
+# Pages (redesigned UI v2)
 # =========================
-def page_home():
-    # -----------------------------------------------------
-    # CSS riêng cho trang chủ
-    # -----------------------------------------------------
-    st.html(
+
+# ──────────────────────────────────────────────────────────
+# SHARED STYLE HELPERS
+# ──────────────────────────────────────────────────────────
+
+_FONT_IMPORTED = False
+
+def _inject_page_css(css: str):
+    global _FONT_IMPORTED
+    font_css = ""
+    if not _FONT_IMPORTED:
+        font_css = """
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+        html, body, [class*="css"]  { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, .vn-title, .vn-banner-title { font-family: 'Outfit', sans-serif; }
         """
-        <style>
-        /* ---------- Khung tổng ---------- */
-        .aideom-home {
-            width: 100%;
-            margin: 0 auto;
-            padding: 0.2rem 0 2rem 0;
-        }
-
-        .aideom-home * {
-            box-sizing: border-box;
-        }
-
-        /* ---------- Hero ---------- */
-        .aideom-hero {
-            position: relative;
-            overflow: hidden;
-            padding: 2.15rem 2.2rem 2rem 2.2rem;
-            border: 1px solid rgba(148, 163, 184, 0.22);
-            border-radius: 24px;
-            background:
-                radial-gradient(
-                    circle at 88% 12%,
-                    rgba(14, 165, 233, 0.16),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 12% 88%,
-                    rgba(34, 197, 94, 0.10),
-                    transparent 28%
-                ),
-                linear-gradient(
-                    145deg,
-                    rgba(15, 23, 42, 0.98),
-                    rgba(17, 24, 39, 0.96)
-                );
-            box-shadow: 0 22px 60px rgba(2, 6, 23, 0.28);
-            margin-bottom: 1.35rem;
-        }
-
-        .aideom-hero::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(
-                    rgba(148, 163, 184, 0.035) 1px,
-                    transparent 1px
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(148, 163, 184, 0.035) 1px,
-                    transparent 1px
-                );
-            background-size: 28px 28px;
-            pointer-events: none;
-        }
-
-        .aideom-hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .aideom-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.38rem 0.72rem;
-            margin-bottom: 1rem;
-            border-radius: 999px;
-            border: 1px solid rgba(34, 197, 94, 0.34);
-            background: rgba(6, 78, 59, 0.28);
-            color: #86efac;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .aideom-eyebrow-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: #22c55e;
-            box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.10);
-        }
-
-        .aideom-title {
-            margin: 0;
-            font-size: clamp(2.15rem, 4vw, 3.5rem);
-            line-height: 1.02;
-            letter-spacing: -0.045em;
-            font-weight: 900;
-            color: #f8fafc;
-        }
-
-        .aideom-title-accent {
-            background: linear-gradient(
-                90deg,
-                #f8fafc 0%,
-                #93c5fd 48%,
-                #5eead4 100%
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .aideom-subtitle {
-            margin: 0.85rem 0 0 0;
-            color: #cbd5e1;
-            font-size: clamp(1rem, 1.5vw, 1.24rem);
-            line-height: 1.65;
-            font-weight: 650;
-            font-style: italic;
-        }
-
-        .aideom-description {
-            max-width: 980px;
-            margin: 0.75rem 0 0 0;
-            color: #94a3b8;
-            font-size: 0.97rem;
-            line-height: 1.72;
-        }
-
-        .aideom-hero-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.55rem;
-            margin-top: 1.25rem;
-        }
-
-        .aideom-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.42rem 0.72rem;
-            border: 1px solid rgba(148, 163, 184, 0.20);
-            border-radius: 999px;
-            background: rgba(15, 23, 42, 0.58);
-            color: #dbeafe;
-            font-size: 0.79rem;
-            font-weight: 650;
-        }
-
-        /* ---------- KPI ---------- */
-        .aideom-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.9rem;
-            margin: 1rem 0 1.7rem 0;
-        }
-
-        .aideom-kpi-card {
-            min-height: 142px;
-            padding: 1.05rem 1rem 0.95rem 1rem;
-            border: 1px solid rgba(148, 163, 184, 0.20);
-            border-radius: 18px;
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(30, 41, 59, 0.88),
-                    rgba(15, 23, 42, 0.88)
-                );
-            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.18);
-            transition:
-                transform 160ms ease,
-                border-color 160ms ease,
-                box-shadow 160ms ease;
-        }
-
-        .aideom-kpi-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(56, 189, 248, 0.38);
-            box-shadow: 0 18px 34px rgba(2, 6, 23, 0.28);
-        }
-
-        .aideom-kpi-label {
-            color: #94a3b8;
-            font-size: 0.82rem;
-            font-weight: 650;
-            margin-bottom: 0.6rem;
-        }
-
-        .aideom-kpi-value {
-            color: #fb7185;
-            font-size: clamp(1.45rem, 2.1vw, 2.15rem);
-            line-height: 1.1;
-            font-weight: 900;
-            letter-spacing: -0.03em;
-        }
-
-        .aideom-kpi-note {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-top: 0.72rem;
-            padding: 0.28rem 0.48rem;
-            border-radius: 999px;
-            background: rgba(5, 150, 105, 0.15);
-            color: #6ee7b7;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        /* ---------- Section ---------- */
-        .aideom-section-head {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 1rem;
-            margin: 1.8rem 0 0.95rem 0;
-        }
-
-        .aideom-section-title {
-            margin: 0;
-            color: #f8fafc;
-            font-size: clamp(1.35rem, 2vw, 1.85rem);
-            line-height: 1.2;
-            font-weight: 850;
-            letter-spacing: -0.025em;
-        }
-
-        .aideom-section-subtitle {
-            margin: 0.28rem 0 0 0;
-            color: #94a3b8;
-            font-size: 0.88rem;
-            line-height: 1.5;
-        }
-
-        .aideom-section-badge {
-            flex: 0 0 auto;
-            padding: 0.38rem 0.65rem;
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            border-radius: 999px;
-            background: rgba(14, 116, 144, 0.12);
-            color: #7dd3fc;
-            font-size: 0.76rem;
-            font-weight: 700;
-        }
-
-        /* ---------- Level cards ---------- */
-        .aideom-levels {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 1rem;
-        }
-
-        .aideom-level-card {
-            padding: 1rem 1rem 0.9rem 1rem;
-            border: 1px solid rgba(148, 163, 184, 0.19);
-            border-radius: 18px;
-            background: rgba(15, 23, 42, 0.72);
-            box-shadow: 0 10px 26px rgba(2, 6, 23, 0.14);
-        }
-
-        .aideom-level-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .aideom-level-name {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-            color: #f8fafc;
-            font-size: 0.95rem;
-            font-weight: 800;
-        }
-
-        .aideom-level-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 999px;
-            box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.035);
-        }
-
-        .level-green { background: #22c55e; }
-        .level-yellow { background: #facc15; }
-        .level-orange { background: #fb923c; }
-        .level-purple { background: #a78bfa; }
-
-        .aideom-level-count {
-            color: #64748b;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .aideom-task-row {
-            display: grid;
-            grid-template-columns: 58px minmax(0, 1fr);
-            gap: 0.75rem;
-            align-items: start;
-            padding: 0.72rem 0;
-            border-top: 1px solid rgba(148, 163, 184, 0.11);
-        }
-
-        .aideom-task-row:first-of-type {
-            border-top: none;
-        }
-
-        .aideom-task-code {
-            color: #e2e8f0;
-            font-weight: 850;
-            font-size: 0.84rem;
-        }
-
-        .aideom-task-name {
-            color: #cbd5e1;
-            font-size: 0.84rem;
-            line-height: 1.5;
-        }
-
-        .aideom-task-tech {
-            display: block;
-            margin-top: 0.22rem;
-            color: #64748b;
-            font-size: 0.73rem;
-            line-height: 1.4;
-        }
-
-        /* ---------- Features ---------- */
-        .aideom-feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 0.9rem;
-        }
-
-        .aideom-feature-card {
-            padding: 1rem;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            border-radius: 17px;
-            background:
-                linear-gradient(
-                    160deg,
-                    rgba(30, 41, 59, 0.68),
-                    rgba(15, 23, 42, 0.72)
-                );
-        }
-
-        .aideom-feature-icon {
-            width: 38px;
-            height: 38px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 0.75rem;
-            border-radius: 12px;
-            background: rgba(14, 165, 233, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            font-size: 1.05rem;
-        }
-
-        .aideom-feature-title {
-            color: #f8fafc;
-            font-size: 0.92rem;
-            font-weight: 800;
-            margin-bottom: 0.35rem;
-        }
-
-        .aideom-feature-text {
-            color: #94a3b8;
-            font-size: 0.80rem;
-            line-height: 1.55;
-        }
-
-        /* ---------- Data strip ---------- */
-        .aideom-data-strip {
-            display: grid;
-            grid-template-columns: 1.3fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .aideom-data-card {
-            padding: 1rem;
-            border-radius: 17px;
-            border: 1px solid rgba(148, 163, 184, 0.17);
-            background: rgba(15, 23, 42, 0.64);
-        }
-
-        .aideom-data-title {
-            color: #e2e8f0;
-            font-size: 0.85rem;
-            font-weight: 800;
-            margin-bottom: 0.55rem;
-        }
-
-        .aideom-data-text {
-            color: #94a3b8;
-            font-size: 0.78rem;
-            line-height: 1.62;
-        }
-
-        .aideom-status-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.45rem;
-            margin-top: 0.55rem;
-        }
-
-        .aideom-status {
-            padding: 0.3rem 0.5rem;
-            border-radius: 999px;
-            font-size: 0.71rem;
-            font-weight: 700;
-            border: 1px solid rgba(34, 197, 94, 0.20);
-            background: rgba(22, 101, 52, 0.14);
-            color: #86efac;
-        }
-
-        /* ---------- Footer ---------- */
-        .aideom-footer {
-            margin-top: 1.6rem;
-            padding: 0.95rem 1rem;
-            border-top: 1px solid rgba(148, 163, 184, 0.15);
-            color: #64748b;
-            font-size: 0.74rem;
-            line-height: 1.55;
-            text-align: center;
-        }
-
-        /* ---------- Responsive ---------- */
-        @media (max-width: 1100px) {
-            .aideom-kpi-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .aideom-levels {
-                grid-template-columns: 1fr;
-            }
-
-            .aideom-feature-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .aideom-data-strip {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 720px) {
-            .aideom-hero {
-                padding: 1.45rem 1.1rem 1.35rem 1.1rem;
-                border-radius: 18px;
-            }
-
-            .aideom-kpi-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .aideom-feature-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .aideom-section-head {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-        </style>
-        """
-    )
-
-    # -----------------------------------------------------
-    # Nội dung trang chủ
-    # -----------------------------------------------------
-    st.html(
-        """
-        <div class="aideom-home">
-
-            <section class="aideom-hero">
-                <div class="aideom-hero-content">
-
-                    <div class="aideom-eyebrow">
-                        <span class="aideom-eyebrow-dot"></span>
-                        Decision Intelligence Platform
-                    </div>
-
-                    <h1 class="aideom-title">
-                        VN <span class="aideom-title-accent">AIDEOM-VN</span>
-                    </h1>
-
-                    <p class="aideom-subtitle">
-                        AI-Driven Decision Optimization Model for Vietnam
-                    </p>
-
-                    <p class="aideom-description">
-                        Nền tảng mô hình hóa và hỗ trợ ra quyết định phát triển kinh tế Việt Nam
-                        trong kỷ nguyên AI. Hệ thống tích hợp 12 bài toán từ dự báo tăng trưởng,
-                        phân bổ ngân sách, xếp hạng ưu tiên, tối ưu đa mục tiêu, bất định
-                        đến học tăng cường và dashboard chính sách.
-                    </p>
-
-                    <div class="aideom-hero-tags">
-                        <span class="aideom-tag">● Streamlit</span>
-                        <span class="aideom-tag">● Python</span>
-                        <span class="aideom-tag">● Optimization</span>
-                        <span class="aideom-tag">● AI & Digital Economy</span>
-                        <span class="aideom-tag">● Vietnam 2020–2035</span>
-                    </div>
-
-                </div>
-            </section>
-
-            <section class="aideom-kpi-grid">
-
-                <article class="aideom-kpi-card">
-                    <div class="aideom-kpi-label">GDP Việt Nam 2025</div>
-                    <div class="aideom-kpi-value">514,0 tỷ USD</div>
-                    <div class="aideom-kpi-note">↗ 8,02% so với 2024</div>
-                </article>
-
-                <article class="aideom-kpi-card">
-                    <div class="aideom-kpi-label">Kinh tế số / GDP</div>
-                    <div class="aideom-kpi-value">≈ 19,5%</div>
-                    <div class="aideom-kpi-note">↗ 1,2 điểm phần trăm</div>
-                </article>
-
-                <article class="aideom-kpi-card">
-                    <div class="aideom-kpi-label">FDI giải ngân 2025</div>
-                    <div class="aideom-kpi-value">27,6 tỷ USD</div>
-                    <div class="aideom-kpi-note">↗ 8,9% cùng kỳ</div>
-                </article>
-
-                <article class="aideom-kpi-card">
-                    <div class="aideom-kpi-label">GDP bình quân đầu người</div>
-                    <div class="aideom-kpi-value">5.026 USD</div>
-                    <div class="aideom-kpi-note">↗ 6,9% theo giá hiện hành</div>
-                </article>
-
-            </section>
-
-            <div class="aideom-section-head">
-                <div>
-                    <h2 class="aideom-section-title">📚 12 bài toán theo 4 cấp độ</h2>
-                    <p class="aideom-section-subtitle">
-                        Lộ trình từ mô hình nền tảng đến hệ thống hỗ trợ quyết định tích hợp.
-                    </p>
-                </div>
-                <div class="aideom-section-badge">12 models · 4 levels</div>
-            </div>
-
-            <section class="aideom-levels">
-
-                <article class="aideom-level-card">
-                    <div class="aideom-level-head">
-                        <div class="aideom-level-name">
-                            <span class="aideom-level-dot level-green"></span>
-                            CẤP ĐỘ DỄ — Làm quen mô hình
-                        </div>
-                        <div class="aideom-level-count">Bài 1–3</div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 1</div>
-                        <div class="aideom-task-name">
-                            Hàm sản xuất Cobb–Douglas mở rộng và Growth Accounting
-                            <span class="aideom-task-tech">
-                                TFP · dự báo GDP 2030 · phân rã tăng trưởng
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 2</div>
-                        <div class="aideom-task-name">
-                            LP phân bổ ngân sách số cho bốn hạng mục
-                            <span class="aideom-task-tech">
-                                SciPy · shadow price · phân tích độ nhạy
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 3</div>
-                        <div class="aideom-task-name">
-                            Chỉ số ưu tiên cho 10 ngành Việt Nam
-                            <span class="aideom-task-tech">
-                                Min-max · weighted scoring · policy sensitivity
-                            </span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="aideom-level-card">
-                    <div class="aideom-level-head">
-                        <div class="aideom-level-name">
-                            <span class="aideom-level-dot level-yellow"></span>
-                            CẤP ĐỘ TRUNG BÌNH — Tối ưu cổ điển
-                        </div>
-                        <div class="aideom-level-count">Bài 4–6</div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 4</div>
-                        <div class="aideom-task-name">
-                            LP phân bổ ngân sách số ngành–vùng
-                            <span class="aideom-task-tech">
-                                24 biến · fairness · PuLP · CVXPY
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 5</div>
-                        <div class="aideom-task-name">
-                            MIP lựa chọn 15 dự án chuyển đổi số
-                            <span class="aideom-task-tech">
-                                Binary · knapsack · prerequisite · CBC
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 6</div>
-                        <div class="aideom-task-name">
-                            TOPSIS xếp hạng sáu vùng kinh tế
-                            <span class="aideom-task-tech">
-                                Expert weight · Entropy · AHP · sensitivity
-                            </span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="aideom-level-card">
-                    <div class="aideom-level-head">
-                        <div class="aideom-level-name">
-                            <span class="aideom-level-dot level-orange"></span>
-                            CẤP ĐỘ NÂNG CAO — Đa mục tiêu và động
-                        </div>
-                        <div class="aideom-level-count">Bài 7–9</div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 7</div>
-                        <div class="aideom-task-name">
-                            Pareto đa mục tiêu và khung NSGA-II
-                            <span class="aideom-task-tech">
-                                Growth · inclusion · emission · data risk
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 8</div>
-                        <div class="aideom-task-name">
-                            Tối ưu động liên thời gian 2026–2035
-                            <span class="aideom-task-tech">
-                                SLSQP · welfare · shock 2028 · front-load
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 9</div>
-                        <div class="aideom-task-name">
-                            Tác động AI tới thị trường lao động
-                            <span class="aideom-task-tech">
-                                NetJob · retraining · vulnerable groups · Sankey
-                            </span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="aideom-level-card">
-                    <div class="aideom-level-head">
-                        <div class="aideom-level-name">
-                            <span class="aideom-level-dot level-purple"></span>
-                            CẤP ĐỘ CHUYÊN SÂU — Bất định và thích nghi
-                        </div>
-                        <div class="aideom-level-count">Bài 10–12</div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 10</div>
-                        <div class="aideom-task-name">
-                            Quy hoạch ngẫu nhiên hai giai đoạn
-                            <span class="aideom-task-tech">
-                                SP · EV · VSS · EVPI · robust optimization
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 11</div>
-                        <div class="aideom-task-name">
-                            Q-learning cho chính sách kinh tế thích nghi
-                            <span class="aideom-task-tech">
-                                MDP · tabular Q-learning · DQN extension
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="aideom-task-row">
-                        <div class="aideom-task-code">Bài 12</div>
-                        <div class="aideom-task-name">
-                            AIDEOM-VN tích hợp
-                            <span class="aideom-task-tech">
-                                6 modules · 5 scenarios · KPI · alerts · recommendations
-                            </span>
-                        </div>
-                    </div>
-                </article>
-
-            </section>
-
-            <div class="aideom-section-head">
-                <div>
-                    <h2 class="aideom-section-title">🧠 Năng lực của hệ thống</h2>
-                    <p class="aideom-section-subtitle">
-                        Một dashboard, nhiều lớp phân tích và công cụ ra quyết định.
-                    </p>
-                </div>
-                <div class="aideom-section-badge">Decision support stack</div>
-            </div>
-
-            <section class="aideom-feature-grid">
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">📈</div>
-                    <div class="aideom-feature-title">Dự báo & mô phỏng</div>
-                    <div class="aideom-feature-text">
-                        Dự báo GDP, TFP, quỹ đạo vốn, số hóa, AI và nhân lực theo thời gian.
-                    </div>
-                </article>
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">⚙️</div>
-                    <div class="aideom-feature-title">Tối ưu hóa</div>
-                    <div class="aideom-feature-text">
-                        LP, MIP, stochastic programming, dynamic optimization và robust optimization.
-                    </div>
-                </article>
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">🏆</div>
-                    <div class="aideom-feature-title">Xếp hạng đa tiêu chí</div>
-                    <div class="aideom-feature-text">
-                        TOPSIS, Entropy, AHP, chỉ số Priority và phân tích độ nhạy trọng số.
-                    </div>
-                </article>
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">🌐</div>
-                    <div class="aideom-feature-title">Đa mục tiêu</div>
-                    <div class="aideom-feature-text">
-                        Pareto, đánh đổi tăng trưởng–bao trùm–môi trường–an ninh dữ liệu.
-                    </div>
-                </article>
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">🤖</div>
-                    <div class="aideom-feature-title">Chính sách thích nghi</div>
-                    <div class="aideom-feature-text">
-                        Q-learning và khung DQN cho cơ cấu đầu tư theo trạng thái kinh tế.
-                    </div>
-                </article>
-
-                <article class="aideom-feature-card">
-                    <div class="aideom-feature-icon">🛡️</div>
-                    <div class="aideom-feature-title">Cảnh báo rủi ro</div>
-                    <div class="aideom-feature-text">
-                        Theo dõi cyber risk, phát thải, việc làm, công bằng vùng và năng lực hấp thụ.
-                    </div>
-                </article>
-
-            </section>
-
-            <section class="aideom-data-strip">
-
-                <article class="aideom-data-card">
-                    <div class="aideom-data-title">📁 Hệ dữ liệu sử dụng</div>
-                    <div class="aideom-data-text">
-                        Dữ liệu vĩ mô, ngành và vùng Việt Nam giai đoạn 2020–2025;
-                        tham số mô phỏng được cấu trúc cho các bài toán chính sách
-                        giai đoạn 2026–2035.
-                    </div>
-
-                    <div class="aideom-status-list">
-                        <span class="aideom-status">Macro</span>
-                        <span class="aideom-status">10 sectors</span>
-                        <span class="aideom-status">6 regions</span>
-                        <span class="aideom-status">Scenarios</span>
-                        <span class="aideom-status">Policy parameters</span>
-                    </div>
-                </article>
-
-                <article class="aideom-data-card">
-                    <div class="aideom-data-title">✅ Trạng thái hệ thống</div>
-                    <div class="aideom-data-text">
-                        12/12 trang mô hình đã được cấu trúc thành dashboard tương tác.
-                        Chọn bài ở thanh điều hướng bên trái để xem mô hình, kết quả,
-                        biểu đồ và diễn giải chính sách.
-                    </div>
-
-                    <div class="aideom-status-list">
-                        <span class="aideom-status">Online</span>
-                        <span class="aideom-status">Interactive</span>
-                        <span class="aideom-status">Downloadable results</span>
-                    </div>
-                </article>
-
-            </section>
-
-            <footer class="aideom-footer">
-                VN AIDEOM-VN · AI-Driven Decision Optimization Model for Vietnam<br>
-                Python · Streamlit · SciPy · PuLP · CVXPY · Plotly
-            </footer>
-
+        _FONT_IMPORTED = True
+    st.markdown(f"<style>{font_css}{css}</style>", unsafe_allow_html=True)
+
+
+def _banner(emoji: str, title: str, subtitle: str, tag_html: str = "", accent: str = "#7C3AED"):
+    st.markdown(
+        f"""
+        <div style="
+            background:#fff;
+            border:1px solid #ECECF1;
+            border-left:6px solid {accent};
+            border-radius:12px;
+            padding:22px 26px 20px;
+            margin-bottom:18px;
+            display:flex;gap:18px;align-items:flex-start;
+            box-shadow:0 2px 10px rgba(17,24,39,.04);">
+          <div style="font-size:34px;line-height:1;flex-shrink:0;
+                      width:54px;height:54px;border-radius:12px;
+                      display:flex;align-items:center;justify-content:center;
+                      background:{accent}14;">{emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div class="vn-banner-title" style="font-size:clamp(1.25rem,2.4vw,1.7rem);font-weight:800;
+                        color:#1F2430;letter-spacing:-0.02em;line-height:1.2">{title}</div>
+            <div style="color:#6B7280;font-size:.92rem;margin-top:6px;max-width:880px;line-height:1.55">{subtitle}</div>
+            {f'<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px">{tag_html}</div>' if tag_html else ''}
+          </div>
         </div>
-        """
+        """,
+        unsafe_allow_html=True,
     )
+
+
+def _pill(text, color="#7C3AED", bg="rgba(124,58,237,.10)", border="rgba(124,58,237,.25)"):
+    return (
+        f'<span style="display:inline-block;padding:3px 10px;border-radius:6px;'
+        f'background:{bg};color:{color};border:1px solid {border};'
+        f'font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase">{text}</span>'
+    )
+
+
+def _kpi(label, value, note, accent="#7C3AED", bg="#FFFFFF"):
+    return f"""
+    <div style="background:{bg};border:1px solid #ECECF1;border-radius:12px;
+                padding:14px 16px;border-top:3px solid {accent};
+                box-shadow:0 1px 6px rgba(17,24,39,.04)">
+      <div style="color:#9CA3AF;font-size:10.5px;font-weight:700;text-transform:uppercase;
+                  letter-spacing:.07em;margin-bottom:6px">{label}</div>
+      <div style="color:#1F2430;font-size:23px;font-weight:800;letter-spacing:-0.03em;
+                  font-family:'Outfit',sans-serif">{value}</div>
+      <div style="color:{accent};font-size:11px;margin-top:4px;font-weight:600">{note}</div>
+    </div>"""
+
+
+def _kpi_row(items):
+    cols = st.columns(len(items))
+    for col, (label, value, note) in zip(cols, items):
+        with col:
+            st.markdown(_kpi(label, value, note), unsafe_allow_html=True)
+    st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+
+
+def _card(content_html, accent_top: str | None = None):
+    border_left = f"border-left:4px solid {accent_top};" if accent_top else "border:1px solid #ECECF1;"
+    st.markdown(
+        f"""<div style="background:#fff;{border_left}border-radius:10px;
+                        padding:16px 20px;margin-bottom:10px;
+                        box-shadow:0 1px 6px rgba(17,24,39,.04)">
+        {content_html}</div>""",
+        unsafe_allow_html=True,
+    )
+
+
+# ──────────────────────────────────────────────────────────
+# HOME PAGE
+# ──────────────────────────────────────────────────────────
+
+def page_home():
+    _inject_page_css("""
+    .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+    .hg-card{background:#fff;border:1px solid #ECECF1;border-radius:12px;
+             padding:18px 18px 14px;box-shadow:0 1px 6px rgba(17,24,39,.04);
+             transition:transform .15s,box-shadow .15s}
+    .hg-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.10)}
+    .hg-icon{font-size:26px;margin-bottom:8px}
+    .hg-title{font-weight:700;color:#1F2430;font-size:.95rem;font-family:'Outfit',sans-serif}
+    .hg-sub{color:#6B7280;font-size:.81rem;margin-top:4px;line-height:1.5}
+    .level-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:.74rem;
+                 font-weight:700;margin-bottom:10px}
+    .kpi-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+    @media(max-width:700px){.kpi-hero{grid-template-columns:repeat(2,1fr)}}
+    .hero-kpi{background:#fff;border:1px solid #ECECF1;border-radius:12px;
+              padding:14px 16px;border-bottom:3px solid #7C3AED;
+              box-shadow:0 1px 6px rgba(17,24,37,.04)}
+    .hero-kpi-label{color:#9CA3AF;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+    .hero-kpi-val{color:#1F2430;font-size:22px;font-weight:800;letter-spacing:-0.03em;margin:5px 0;
+                  font-family:'Outfit',sans-serif}
+    .hero-kpi-note{color:#059669;font-size:11px;font-weight:600}
+    """)
+
+    # ── Hero ──
+    st.markdown("""
+    <div style="background:#1B1830;
+                border-radius:16px;padding:30px 32px 26px;margin-bottom:18px;
+                position:relative;overflow:hidden;border:1px solid #2A2545">
+      <div style="position:absolute;top:0;left:0;width:5px;height:100%;
+                  background:linear-gradient(180deg,#a78bfa,#f472b6)"></div>
+      <div style="position:relative;z-index:2;padding-left:6px">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:4px 12px;
+                    border-radius:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);
+                    color:#86efac;font-size:.72rem;font-weight:700;letter-spacing:.06em;
+                    text-transform:uppercase;margin-bottom:14px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#22c55e"></span>
+          Hệ thống đang hoạt động · 12/12 mô hình
+        </div>
+        <div class="vn-title" style="font-size:clamp(1.8rem,4.5vw,2.7rem);font-weight:800;color:#fff;
+                    letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px">
+          VN AIDEOM-VN
+          <span style="background:linear-gradient(90deg,#a78bfa,#f472b6);
+                       -webkit-background-clip:text;-webkit-text-fill-color:transparent">Dashboard</span>
+        </div>
+        <div style="color:#9CA3AF;font-size:.92rem;max-width:760px;line-height:1.6">
+          AI-Driven Decision Optimization Model for Vietnam — Nền tảng 12 bài toán tối ưu hóa
+          kinh tế số Việt Nam, từ Cobb-Douglas đến Q-learning, tích hợp dữ liệu 2020–2035.
+        </div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">
+          <span style="padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);
+                       color:#D1D5DB;font-size:.75rem;font-weight:600;border:1px solid rgba(255,255,255,.12)">🐍 Python</span>
+          <span style="padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);
+                       color:#D1D5DB;font-size:.75rem;font-weight:600;border:1px solid rgba(255,255,255,.12)">⚡ Streamlit</span>
+          <span style="padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);
+                       color:#D1D5DB;font-size:.75rem;font-weight:600;border:1px solid rgba(255,255,255,.12)">📊 Plotly</span>
+          <span style="padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);
+                       color:#D1D5DB;font-size:.75rem;font-weight:600;border:1px solid rgba(255,255,255,.12)">🔢 SciPy · PuLP · CVXPY</span>
+          <span style="padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08);
+                       color:#D1D5DB;font-size:.75rem;font-weight:600;border:1px solid rgba(255,255,255,.12)">🤖 Gemini AI</span>
+        </div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── KPI strip ──
+    st.markdown("""
+    <div class="kpi-hero">
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">GDP Việt Nam 2025</div>
+        <div class="hero-kpi-val">514,0 tỷ USD</div>
+        <div class="hero-kpi-note">↗ 8,02% so với 2024</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">Kinh tế số / GDP</div>
+        <div class="hero-kpi-val">≈ 19,5%</div>
+        <div class="hero-kpi-note">↗ 1,2 điểm phần trăm</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">FDI giải ngân 2025</div>
+        <div class="hero-kpi-val">27,6 tỷ USD</div>
+        <div class="hero-kpi-note">↗ 8,9% cùng kỳ</div>
+      </div>
+      <div class="hero-kpi">
+        <div class="hero-kpi-label">GDP/người 2025</div>
+        <div class="hero-kpi-val">5.026 USD</div>
+        <div class="hero-kpi-note">↗ 6,9% theo giá hiện hành</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── 12 modules grid ──
+    st.markdown("### 📚 12 bài toán — 4 cấp độ")
+
+    levels = [
+        ("🟢 Dễ · Bài 1–3", "#22c55e", "rgba(34,197,94,.06)", [
+            ("📈", "Bài 1", "Cobb-Douglas mở rộng", "TFP · Growth accounting · GDP 2030"),
+            ("💰", "Bài 2", "LP ngân sách số", "SciPy · Shadow price · Sensitivity"),
+            ("🏭", "Bài 3", "Priority 10 ngành", "Min-max · MCDM · Policy weight"),
+        ]),
+        ("🟡 Trung bình · Bài 4–6", "#F59E0B", "rgba(245,158,11,.06)", [
+            ("🗺️", "Bài 4", "LP ngành–vùng", "24 biến · Fairness · CVXPY · PuLP"),
+            ("🔲", "Bài 5", "MIP 15 dự án", "Binary · Knapsack · CBC · E[Z]"),
+            ("🏆", "Bài 6", "TOPSIS 6 vùng", "Entropy · AHP · Sensitivity"),
+        ]),
+        ("🟠 Nâng cao · Bài 7–9", "#F97316", "rgba(249,115,22,.06)", [
+            ("🌐", "Bài 7", "Pareto đa mục tiêu", "NSGA-II · Scatter 3D · Tradeoff"),
+            ("⏳", "Bài 8", "Động 2026–2035", "SLSQP · Shock 2028 · Front-load"),
+            ("👷", "Bài 9", "Lao động & AI", "NetJob · Sankey · Retraining"),
+        ]),
+        ("🟣 Chuyên sâu · Bài 10–12", "#7C3AED", "rgba(124,58,237,.06)", [
+            ("🎲", "Bài 10", "Stochastic SP", "VSS · EVPI · Robust optimization"),
+            ("🤖", "Bài 11", "Q-learning RL", "MDP · DQN · Adaptive policy"),
+            ("🔗", "Bài 12", "AIDEOM tích hợp", "M1-M6 · 5 kịch bản · Pipeline"),
+        ]),
+    ]
+
+    for level_label, dot_color, level_bg, modules in levels:
+        st.markdown(
+            f'<div style="background:{level_bg};border-radius:12px;padding:12px 16px 8px;margin-bottom:10px;'
+            f'border-left:3px solid {dot_color}">'
+            f'<div style="font-weight:700;color:#1F2430;font-size:.86rem;margin-bottom:10px;'
+            f'font-family:\'Outfit\',sans-serif">{level_label}</div>',
+            unsafe_allow_html=True,
+        )
+        cols = st.columns(3)
+        for col, (icon, code, name, tech) in zip(cols, modules):
+            with col:
+                st.markdown(
+                    f"""<div style="background:#fff;border:1px solid #ECECF1;border-radius:10px;
+                                   padding:12px 14px 10px;box-shadow:0 1px 4px rgba(17,24,39,.04)">
+                      <div style="font-size:20px">{icon}</div>
+                      <div style="font-weight:700;color:#1F2430;font-size:.86rem;margin:4px 0 2px;
+                                  font-family:'Outfit',sans-serif">{code} — {name}</div>
+                      <div style="color:#9CA3AF;font-size:.74rem">{tech}</div>
+                    </div>""",
+                    unsafe_allow_html=True,
+                )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── Footer ──
+    st.markdown("""
+    <div style="text-align:center;color:#9CA3AF;font-size:.8rem;margin-top:22px;padding:14px;
+                border-top:1px solid #ECECF1">
+      VN AIDEOM-VN · AI-Driven Decision Optimization Model for Vietnam<br>
+      Python · Streamlit · SciPy · PuLP · CVXPY · Plotly · Gemini AI
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ──────────────────────────────────────────────────────────
+# BÀI 1 — Cobb-Douglas  (theme: xanh dương + cam)
+# ──────────────────────────────────────────────────────────
 
 def page_1():
-    hero(
-        "Bài 1 — Hàm sản xuất Cobb-Douglas mở rộng với AI và số hóa",
-        "Trình bày đầy đủ các mục 1.1-1.5: bối cảnh, mô hình, dữ liệu, bốn yêu cầu lập trình và thảo luận chính sách.",
-        ["1.1-1.5", "Growth accounting", "TFP", "MAPE", "GDP 2030"],
-    )
+    _inject_page_css("""
+    .b1-tag{display:inline-block;padding:3px 10px;border-radius:6px;
+            background:rgba(59,130,246,.1);color:#2563EB;
+            border:1px solid rgba(59,130,246,.3);font-size:.74rem;font-weight:700;margin-right:6px}
+    .b1-formula-box{background:#F8FAFF;border:1px solid #ECECF1;border-left:4px solid #2563EB;
+                    border-radius:10px;padding:16px 20px;margin:12px 0}
+    .b1-insight{background:#FFFAF5;border:1px solid #ECECF1;border-left:4px solid #F97316;
+                border-radius:10px;padding:13px 16px;margin:10px 0;color:#7C2D12}
+    .b1-success{background:#F6FFF8;border:1px solid #ECECF1;border-left:4px solid #22c55e;
+                border-radius:10px;padding:13px 16px;margin:10px 0;color:#14532D}
+    """)
+
+    tags = "".join([_pill(t, "#2563EB", "rgba(59,130,246,.1)", "rgba(59,130,246,.3)")
+                    for t in ["1.1–1.5", "Cobb-Douglas", "TFP", "MAPE", "GDP 2030"]])
+    _banner("📈", "Bài 1 — Hàm sản xuất Cobb-Douglas mở rộng",
+            "Mô hình hóa tăng trưởng GDP Việt Nam 2020–2025 với 5 yếu tố: K · L · D · AI · H. Phân rã TFP, dự báo và mô phỏng GDP 2030.",
+            tags, "#2563EB")
 
     show_assignment_structure(1)
 
-    # =====================================================
-    # 1.1. Bối cảnh Việt Nam
-    # =====================================================
-    st.markdown("## 1.1. Bối cảnh Việt Nam")
-    st.markdown(
-        """
-        GDP Việt Nam tăng từ **8.044,4 nghìn tỷ VND năm 2020** lên
-        **12.847,6 nghìn tỷ VND năm 2025**. Trong cùng giai đoạn, tỷ trọng
-        kinh tế số tăng từ **12,0%** lên **19,5% GDP**, năng lực AI được đại diện
-        bởi số doanh nghiệp công nghệ số tăng từ **55,6 nghìn** lên **80,1 nghìn**,
-        và tỷ lệ lao động qua đào tạo tăng từ **24,1%** lên **29,2%**.
-
-        Bài toán cần kiểm tra liệu hàm sản xuất Cobb-Douglas mở rộng có thể tái hiện
-        hợp lý sản lượng thực tế hay không, đồng thời xác định mức đóng góp của vốn,
-        lao động, số hóa, AI, nhân lực số và TFP vào tăng trưởng.
-        """
-    )
-
+    # ── 1.1 Bối cảnh ──
+    st.markdown("## 1.1 · Bối cảnh Việt Nam")
     macro = load_macro().sort_values("year").reset_index(drop=True)
-    context_table = macro.loc[
-        macro["year"].isin([2024, 2025]),
-        [
-            "year",
-            "GDP_trillion_VND",
-            "GDP_growth_pct",
-            "digital_economy_share_GDP_pct",
-            "labor_productivity_million_VND",
-        ],
-    ].rename(
-        columns={
-            "year": "Năm",
-            "GDP_trillion_VND": "GDP (nghìn tỷ VND)",
-            "GDP_growth_pct": "Tăng trưởng GDP (%)",
-            "digital_economy_share_GDP_pct": "Kinh tế số/GDP (%)",
-            "labor_productivity_million_VND": "NSLĐ (triệu VND/người)",
-        }
-    )
-    st.dataframe(context_table, use_container_width=True, hide_index=True)
 
-    # =====================================================
-    # 1.2. Mô hình toán học
-    # =====================================================
-    st.markdown("## 1.2. Mô hình toán học")
-    st.latex(r"Y_t=A_tK_t^{\alpha}L_t^{\beta}D_t^{\gamma}AI_t^{\delta}H_t^{\theta}")
-    st.latex(r"\alpha+\beta+\gamma+\delta+\theta=1")
-    st.markdown(
-        """
-        Trong đó: **Y** là GDP; **A** là năng suất nhân tố tổng hợp (TFP);
-        **K** là vốn vật chất; **L** là lao động; **D** là mức độ số hóa;
-        **AI** là năng lực trí tuệ nhân tạo; **H** là vốn nhân lực số.
-        Các số mũ là độ co giãn của sản lượng đối với từng đầu vào.
-        """
-    )
-    st.latex(
-        r"\Delta\ln Y_t=\Delta\ln A_t+\alpha\Delta\ln K_t+"
-        r"\beta\Delta\ln L_t+\gamma\Delta\ln D_t+"
-        r"\delta\Delta\ln AI_t+\theta\Delta\ln H_t"
-    )
+    c1, c2 = st.columns([1.3, 1])
+    with c1:
+        st.markdown("""
+        <div style="background:#fff;border:1px solid #ECECF1;border-left:4px solid #2563EB;border-radius:10px;
+                    padding:16px 20px;margin-bottom:8px">
+          <div style="font-weight:700;color:#1F2430;margin-bottom:8px;font-family:'Outfit',sans-serif">🇻🇳 Giai đoạn 2020–2025</div>
+          <div style="color:#4B5563;font-size:.92rem;line-height:1.7">
+            GDP tăng từ <b>8.044,4</b> lên <b>12.847,6 nghìn tỷ VND</b>.<br>
+            Kinh tế số: <b>12,0% → 19,5% GDP</b>.<br>
+            DN công nghệ số: <b>55,6 → 80,1 nghìn</b>.<br>
+            Lao động qua đào tạo: <b>24,1% → 29,2%</b>.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        ctx = macro.loc[macro["year"].isin([2024, 2025]),
+            ["year", "GDP_trillion_VND", "GDP_growth_pct", "digital_economy_share_GDP_pct"]].rename(
+            columns={"year": "Năm", "GDP_trillion_VND": "GDP (nghìn tỷ)", 
+                     "GDP_growth_pct": "Tăng trưởng %", "digital_economy_share_GDP_pct": "KT số %"})
+        st.dataframe(ctx, use_container_width=True, hide_index=True)
 
-    with st.expander("Điều chỉnh hệ số đàn hồi", expanded=True):
+    # ── 1.2 Mô hình ──
+    st.markdown("## 1.2 · Mô hình toán học")
+    st.markdown('<div class="b1-formula-box">', unsafe_allow_html=True)
+    st.latex(r"Y_t = A_t \cdot K_t^{\alpha} \cdot L_t^{\beta} \cdot D_t^{\gamma} \cdot AI_t^{\delta} \cdot H_t^{\theta}, \quad \alpha+\beta+\gamma+\delta+\theta=1")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    with st.expander("⚙️ Điều chỉnh hệ số đàn hồi", expanded=True):
         c1, c2, c3, c4 = st.columns(4)
-        alpha = c1.slider("α - Vốn K", 0.20, 0.45, 0.33, 0.01, key="b1_alpha")
-        beta = c2.slider("β - Lao động L", 0.25, 0.55, 0.42, 0.01, key="b1_beta")
-        gamma = c3.slider("γ - Số hóa D", 0.02, 0.20, 0.10, 0.01, key="b1_gamma")
-        delta = c4.slider("δ - AI", 0.02, 0.18, 0.08, 0.01, key="b1_delta")
+        alpha = c1.slider("α — Vốn K", 0.20, 0.45, 0.33, 0.01, key="b1_alpha")
+        beta  = c2.slider("β — Lao động L", 0.25, 0.55, 0.42, 0.01, key="b1_beta")
+        gamma = c3.slider("γ — Số hóa D", 0.02, 0.20, 0.10, 0.01, key="b1_gamma")
+        delta = c4.slider("δ — AI", 0.02, 0.18, 0.08, 0.01, key="b1_delta")
         theta = 1 - alpha - beta - gamma - delta
         if theta <= 0:
-            st.error("Tổng α + β + γ + δ phải nhỏ hơn 1 để θ dương.")
+            st.error("Tổng α+β+γ+δ phải < 1 để θ > 0.")
             st.stop()
-        st.success(
-            f"θ = {theta:.2f}; tổng hệ số = "
-            f"{alpha + beta + gamma + delta + theta:.2f} (lợi suất không đổi theo quy mô)."
-        )
+        st.markdown(f'<div class="b1-success">θ (nhân lực số) = <b>{theta:.2f}</b> · Tổng hệ số = 1,00 ✓</div>', unsafe_allow_html=True)
 
-    # =====================================================
-    # 1.3. Dữ liệu Việt Nam 2020-2025
-    # =====================================================
-    st.markdown("## 1.3. Dữ liệu Việt Nam 2020-2025")
+    # ── 1.3 Dữ liệu ──
+    st.markdown("## 1.3 · Dữ liệu Việt Nam 2020–2025")
     years, Y, K, L, D, AI, H, A = compute_tfp(alpha, beta, gamma, delta, theta)
-    input_df = pd.DataFrame(
-        {
-            "Năm": years,
-            "Y - GDP (nghìn tỷ VND)": Y,
-            "K - Vốn tích lũy": K,
-            "L - Lao động (triệu)": L,
-            "D - Kinh tế số/GDP (%)": D,
-            "AI - DN số (nghìn)": AI,
-            "H - Lao động qua đào tạo (%)": H,
-        }
-    )
-    st.dataframe(input_df, use_container_width=True, hide_index=True)
-    st.caption(
-        "Hệ số mặc định theo đề: α=0,33; β=0,42; γ=0,10; δ=0,08; θ=0,07. "
-        "Các biến K, L, AI và H được dùng theo bảng dữ liệu trong đề bài."
-    )
-
-    # Các kết quả dùng chung cho 1.4 và 1.5
     A_mean = A.mean()
     Y_hat = A_mean * K**alpha * L**beta * D**gamma * AI**delta * H**theta
     mape = safe_mape(Y, Y_hat)
-
     annual_contributions = {
-        "K - Vốn": alpha * np.diff(np.log(K)),
-        "L - Lao động": beta * np.diff(np.log(L)),
-        "D - Số hóa": gamma * np.diff(np.log(D)),
-        "AI - Năng lực AI": delta * np.diff(np.log(AI)),
-        "H - Nhân lực số": theta * np.diff(np.log(H)),
+        "K — Vốn": alpha * np.diff(np.log(K)),
+        "L — Lao động": beta * np.diff(np.log(L)),
+        "D — Số hóa": gamma * np.diff(np.log(D)),
+        "AI": delta * np.diff(np.log(AI)),
+        "H — Nhân lực": theta * np.diff(np.log(H)),
         "TFP": np.diff(np.log(A)),
     }
     avg_log_growth = np.diff(np.log(Y)).mean()
-    contrib_df = pd.DataFrame(
-        {
-            "Yếu tố": list(annual_contributions.keys()),
-            "Đóng góp bình quân (% log/năm)": [
-                100 * values.mean() for values in annual_contributions.values()
-            ],
-            "Tỷ trọng trong tăng trưởng (%)": [
-                100 * values.mean() / avg_log_growth
-                for values in annual_contributions.values()
-            ],
-        }
-    )
+    contrib_df = pd.DataFrame({
+        "Yếu tố": list(annual_contributions.keys()),
+        "Đóng góp bình quân (% log/năm)": [100 * v.mean() for v in annual_contributions.values()],
+        "Tỷ trọng (%)": [100 * v.mean() / avg_log_growth for v in annual_contributions.values()],
+    })
+    input_df = pd.DataFrame({"Năm": years, "Y - GDP": Y, "K - Vốn": K, "L - Lao động": L,
+                              "D - KT số": D, "AI - DN số": AI, "H - Đào tạo": H})
+    st.dataframe(input_df, use_container_width=True, hide_index=True)
+    st.caption("Hệ số mặc định theo đề: α=0,33 β=0,42 γ=0,10 δ=0,08 θ=0,07")
 
-    # Kịch bản 2030: đề yêu cầu cả K và L tăng 6%/năm
     n_years = 5
-    K2030 = K[-1] * (1.06**n_years)
-    L2030 = L[-1] * (1.06**n_years)
-    D2030 = 30.0
-    AI2030 = 100.0
-    H2030 = 35.0
-    A2030 = A[-1] * (1.012**n_years)
-    Y2030 = (
-        A2030
-        * K2030**alpha
-        * L2030**beta
-        * D2030**gamma
-        * AI2030**delta
-        * H2030**theta
-    )
+    K2030 = K[-1] * (1.06**n_years); L2030 = L[-1] * (1.06**n_years)
+    D2030 = 30.0; AI2030 = 100.0; H2030 = 35.0; A2030 = A[-1] * (1.012**n_years)
+    Y2030 = A2030 * K2030**alpha * L2030**beta * D2030**gamma * AI2030**delta * H2030**theta
     growth_2025_2030 = (Y2030 / Y[-1] - 1) * 100
+    tfp_cagr = ((A[-1] / A[0]) ** (1/(len(A)-1)) - 1) * 100
+    tfp_direction = "tăng" if A[-1] > A[0] else "giảm"
 
-    # =====================================================
-    # 1.4. Yêu cầu lập trình
-    # =====================================================
-    st.markdown("## 1.4. Yêu cầu lập trình")
+    # ── 1.4 Tabs ──
+    st.markdown("## 1.4 · Yêu cầu lập trình")
     tab141, tab142, tab143, tab144 = st.tabs(
-        ["1.4.1 - TFP", "1.4.2 - Dự báo & MAPE", "1.4.3 - Phân rã", "1.4.4 - GDP 2030"]
-    )
+        ["📉 1.4.1 — TFP", "🎯 1.4.2 — Dự báo & MAPE", "🥧 1.4.3 — Phân rã", "🔭 1.4.4 — GDP 2030"])
 
     with tab141:
-        st.markdown("### Câu 1.4.1. Ước lượng TFP Aₜ")
-        tfp_df = pd.DataFrame({"Năm": years, "TFP A_t": A})
-        c1, c2 = st.columns([1.1, 1])
+        tfp_df = pd.DataFrame({"Năm": years, "TFP Aₜ": A})
+        c1, c2 = st.columns([1, 1.2])
         with c1:
+            _kpi_row([("TFP 2020", f"{A[0]:.3f}", "điểm khởi đầu"),
+                      ("TFP 2025", f"{A[-1]:.3f}", "điểm kết thúc"),
+                      ("CAGR TFP", f"{tfp_cagr:.2f}%/năm", "tốc độ thay đổi")])
             st.dataframe(tfp_df, use_container_width=True, hide_index=True)
         with c2:
-            st.plotly_chart(
-                plot_line(tfp_df, "Năm", "TFP A_t", "TFP Aₜ giai đoạn 2020-2025"),
-                use_container_width=True,
-            )
-        tfp_cagr = ((A[-1] / A[0]) ** (1 / (len(A) - 1)) - 1) * 100
-        tfp_direction = "tăng" if A[-1] > A[0] else "giảm" if A[-1] < A[0] else "ổn định"
-        st.info(
-            f"TFP có xu hướng **{tfp_direction}** từ {A[0]:.3f} năm 2020 "
-            f"lên {A[-1]:.3f} năm 2025; tốc độ thay đổi bình quân khoảng "
-            f"**{tfp_cagr:.2f}%/năm**."
-        )
-        with st.expander("Xem mã Python cho câu 1.4.1"):
-            st.code(
-                """A = Y / (K**alpha * L**beta * D**gamma * AI**delta * H**theta)
-tfp_df = pd.DataFrame({'year': years, 'TFP_A_t': A})
-fig = px.line(tfp_df, x='year', y='TFP_A_t', markers=True)""",
-                language="python",
-            )
+            fig = px.line(tfp_df, x="Năm", y="TFP Aₜ", markers=True,
+                          template=PLOT_TEMPLATE, title="Xu hướng TFP Aₜ 2020–2025")
+            fig.update_traces(line=dict(color="#2563EB", width=3), marker=dict(size=9))
+            fig.update_layout(height=300)
+            st.plotly_chart(fig, use_container_width=True)
+        st.markdown(f'<div class="b1-insight">TFP có xu hướng <b>{tfp_direction}</b>, từ {A[0]:.3f} → {A[-1]:.3f}. CAGR ≈ <b>{tfp_cagr:.2f}%/năm</b>.</div>', unsafe_allow_html=True)
+        with st.expander("Xem code"):
+            st.code("A = Y / (K**alpha * L**beta * D**gamma * AI**delta * H**theta)", language="python")
 
     with tab142:
-        st.markdown("### Câu 1.4.2. GDP dự báo và MAPE")
-        forecast_df = pd.DataFrame(
-            {
-                "Năm": years,
-                "GDP thực tế": Y,
-                "GDP dự báo": Y_hat,
-                "Sai số tuyệt đối (%)": np.abs((Y - Y_hat) / Y) * 100,
-            }
-        )
-        kpi_cards(
-            [
-                ("A trung bình", f"{A_mean:.3f}", "trung bình 2020-2025"),
-                ("MAPE", f"{mape:.2f}%", "sai số phần trăm tuyệt đối bình quân"),
-                ("Sai số nhỏ nhất", f"{forecast_df['Sai số tuyệt đối (%)'].min():.2f}%", "theo năm"),
-                ("Sai số lớn nhất", f"{forecast_df['Sai số tuyệt đối (%)'].max():.2f}%", "theo năm"),
-            ]
-        )
-        st.dataframe(forecast_df, use_container_width=True, hide_index=True)
-        fig = px.line(
-            forecast_df,
-            x="Năm",
-            y=["GDP thực tế", "GDP dự báo"],
-            markers=True,
-            template=PLOT_TEMPLATE,
-            title="So sánh GDP thực tế và GDP dự báo",
-        )
-        fig.update_layout(height=430, margin=dict(l=10, r=10, t=54, b=10))
-        st.plotly_chart(fig, use_container_width=True)
-        st.info(
-            f"MAPE bằng **{mape:.2f}%**. Chỉ số này càng thấp thì mức khớp trong mẫu càng tốt; "
-            "tuy nhiên đây là phép hiệu chỉnh trên chính giai đoạn 2020-2025, chưa phải kiểm định dự báo ngoài mẫu."
-        )
-        with st.expander("Xem mã Python cho câu 1.4.2"):
-            st.code(
-                """A_mean = A.mean()
-Y_hat = A_mean * K**alpha * L**beta * D**gamma * AI**delta * H**theta
-MAPE = np.mean(np.abs((Y - Y_hat) / Y)) * 100""",
-                language="python",
-            )
+        forecast_df = pd.DataFrame({"Năm": years, "GDP thực tế": Y, "GDP dự báo": Y_hat,
+                                     "Sai số (%)": np.abs((Y - Y_hat)/Y)*100})
+        _kpi_row([("A̅ trung bình", f"{A_mean:.3f}", "TFP bình quân 2020–2025"),
+                  ("MAPE", f"{mape:.2f}%", "sai số dự báo trong mẫu"),
+                  ("Sai số min", f"{forecast_df['Sai số (%)'].min():.2f}%", "năm tốt nhất"),
+                  ("Sai số max", f"{forecast_df['Sai số (%)'].max():.2f}%", "năm khó khớp nhất")])
+        c1, c2 = st.columns([1, 1.3])
+        with c1:
+            st.dataframe(forecast_df, use_container_width=True, hide_index=True)
+        with c2:
+            fig = px.line(forecast_df, x="Năm", y=["GDP thực tế", "GDP dự báo"],
+                          markers=True, template=PLOT_TEMPLATE, title="GDP thực tế vs. dự báo")
+            fig.update_layout(height=300)
+            st.plotly_chart(fig, use_container_width=True)
+        with st.expander("Xem code"):
+            st.code("Y_hat = A.mean() * K**alpha * L**beta * D**gamma * AI**delta * H**theta\nMAPE = np.mean(np.abs((Y - Y_hat)/Y)) * 100", language="python")
 
     with tab143:
-        st.markdown("### Câu 1.4.3. Phân rã tăng trưởng 2020-2025")
-        st.metric("Tăng trưởng GDP bình quân theo log", f"{100 * avg_log_growth:.2f}%/năm")
-        st.dataframe(
-            contrib_df.style.format(
-                {
-                    "Đóng góp bình quân (% log/năm)": "{:.3f}",
-                    "Tỷ trọng trong tăng trưởng (%)": "{:.2f}",
-                }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-        st.plotly_chart(
-            plot_bar(
-                contrib_df,
-                "Yếu tố",
-                "Tỷ trọng trong tăng trưởng (%)",
-                "Tỷ trọng đóng góp vào tăng trưởng GDP",
-                text="Tỷ trọng trong tăng trưởng (%)",
-            ),
-            use_container_width=True,
-        )
-        st.caption(
-            "Tỷ trọng có thể âm hoặc vượt 100% khi một yếu tố kéo giảm tăng trưởng và các yếu tố khác bù đắp."
-        )
-        with st.expander("Xem mã Python cho câu 1.4.3"):
-            st.code(
-                """growth_Y = np.diff(np.log(Y))
-contribution_K = alpha * np.diff(np.log(K))
-contribution_L = beta * np.diff(np.log(L))
-contribution_D = gamma * np.diff(np.log(D))
-contribution_AI = delta * np.diff(np.log(AI))
-contribution_H = theta * np.diff(np.log(H))
-contribution_TFP = np.diff(np.log(A))""",
-                language="python",
-            )
+        st.metric("Tăng trưởng GDP bình quân (log)", f"{100*avg_log_growth:.2f}%/năm")
+        c1, c2 = st.columns([1, 1.3])
+        with c1:
+            st.dataframe(contrib_df.style.format({"Đóng góp bình quân (% log/năm)": "{:.3f}",
+                                                   "Tỷ trọng (%)": "{:.2f}"}),
+                         use_container_width=True, hide_index=True)
+        with c2:
+            fig = px.bar(contrib_df, x="Yếu tố", y="Tỷ trọng (%)", text="Tỷ trọng (%)",
+                         template=PLOT_TEMPLATE, title="Tỷ trọng đóng góp vào tăng trưởng GDP",
+                         color="Tỷ trọng (%)", color_continuous_scale="Blues")
+            fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+            fig.update_layout(height=320)
+            st.plotly_chart(fig, use_container_width=True)
 
     with tab144:
-        st.markdown("### Câu 1.4.4. Mô phỏng GDP Việt Nam năm 2030")
-        scenario_df = pd.DataFrame(
-            {
-                "Biến": ["K", "L", "D", "AI", "H", "TFP A"],
-                "Năm 2025": [K[-1], L[-1], D[-1], AI[-1], H[-1], A[-1]],
-                "Kịch bản 2030": [K2030, L2030, D2030, AI2030, H2030, A2030],
-                "Giả định": [
-                    "Tăng 6%/năm",
-                    "Tăng 6%/năm",
-                    "Đạt 30% GDP",
-                    "100 nghìn DN",
-                    "Đạt 35%",
-                    "Tăng 1,2%/năm",
-                ],
-            }
-        )
-        kpi_cards(
-            [
-                ("GDP 2025", f"{Y[-1]:,.1f}", "nghìn tỷ VND"),
-                ("GDP 2030 mô phỏng", f"{Y2030:,.1f}", "nghìn tỷ VND"),
-                ("Tăng 2025-2030", f"{growth_2025_2030:.1f}%", "theo kịch bản đề bài"),
-                ("Tăng trưởng quy đổi", f"{((Y2030 / Y[-1]) ** (1/5) - 1) * 100:.2f}%/năm", "CAGR GDP"),
-            ]
-        )
+        _kpi_row([("GDP 2025", f"{Y[-1]:,.0f}", "nghìn tỷ VND"),
+                  ("GDP 2030 ↗", f"{Y2030:,.0f}", "nghìn tỷ VND"),
+                  ("Tăng 5 năm", f"{growth_2025_2030:.1f}%", "so với 2025"),
+                  ("CAGR 2025-30", f"{((Y2030/Y[-1])**(1/5)-1)*100:.2f}%/năm", "kịch bản đề bài")])
+        scenario_df = pd.DataFrame({"Biến": ["K", "L", "D", "AI", "H", "TFP"],
+            "2025": [K[-1], L[-1], D[-1], AI[-1], H[-1], A[-1]],
+            "2030": [K2030, L2030, D2030, AI2030, H2030, A2030],
+            "Giả định": ["K +6%/năm", "L +6%/năm", "D = 30%", "AI = 100k DN", "H = 35%", "TFP +1,2%/năm"]})
         st.dataframe(scenario_df, use_container_width=True, hide_index=True)
-        st.warning(
-            "Kịch bản 1.4.4 là mô phỏng có điều kiện. Kết quả phụ thuộc mạnh vào giả định cả vốn K và lao động L "
-            "đều tăng 6%/năm; đây không phải dự báo chính thức."
-        )
-        with st.expander("Xem mã Python cho câu 1.4.4"):
-            st.code(
-                """K2030 = K[-1] * 1.06**5
-L2030 = L[-1] * 1.06**5
-D2030, AI2030, H2030 = 30, 100, 35
-A2030 = A[-1] * 1.012**5
-Y2030 = A2030 * K2030**alpha * L2030**beta * D2030**gamma * AI2030**delta * H2030**theta""",
-                language="python",
-            )
+        st.warning("Kịch bản có điều kiện. Kết quả phụ thuộc giả định K và L cùng tăng 6%/năm.")
 
-    # File kết quả cho người dùng tải từ web
-    result_export = forecast_df.merge(tfp_df, on="Năm")
-    st.download_button(
-        "Tải kết quả Bài 1 dạng CSV",
+    # ── Download ──
+    result_export = pd.DataFrame({"Năm": years, "GDP_thuc_te": Y, "GDP_du_bao": Y_hat, "TFP": A})
+    st.download_button("⬇️ Tải kết quả Bài 1 (CSV)",
         data=result_export.to_csv(index=False).encode("utf-8-sig"),
-        file_name="bai1_cobb_douglas_ket_qua.csv",
-        mime="text/csv",
-        key="download_bai1",
-    )
+        file_name="bai1_cobb_douglas.csv", mime="text/csv", key="dl_b1")
 
-    # =====================================================
-    # 1.5. Câu hỏi thảo luận chính sách
-    # =====================================================
-    st.markdown("## 1.5. Câu hỏi thảo luận chính sách")
-
-    cumulative_new = {
-        "số hóa D": gamma * np.log(D[-1] / D[0]),
-        "năng lực AI": delta * np.log(AI[-1] / AI[0]),
-        "nhân lực số H": theta * np.log(H[-1] / H[0]),
-    }
+    # ── 1.5 Thảo luận ──
+    st.markdown("## 1.5 · Thảo luận chính sách")
+    cumulative_new = {"số hóa D": gamma*np.log(D[-1]/D[0]),
+                      "năng lực AI": delta*np.log(AI[-1]/AI[0]),
+                      "nhân lực số H": theta*np.log(H[-1]/H[0])}
     strongest_new = max(cumulative_new, key=cumulative_new.get)
-    digital_pp_required = (30 - D[-1]) / 5
-    digital_cagr_required = ((30 / D[-1]) ** (1 / 5) - 1) * 100
-
-    with st.expander("a) TFP tăng hay giảm và phản ánh điều gì?", expanded=True):
-        st.markdown(
-            f"TFP **{tfp_direction}** trong giai đoạn 2020-2025, từ **{A[0]:.3f}** "
-            f"lên **{A[-1]:.3f}**, tương ứng khoảng **{tfp_cagr:.2f}%/năm**. "
-            "Nếu TFP tăng, chất lượng tăng trưởng được cải thiện vì một phần sản lượng tăng thêm đến từ hiệu quả, "
-            "công nghệ và tổ chức sản xuất, không chỉ từ mở rộng vốn và lao động. Tuy nhiên, kết luận này phụ thuộc "
-            "vào cách đo D, AI, H và bộ hệ số đàn hồi giả định."
-        )
-
-    with st.expander("b) Trong D, AI và H, yếu tố nào đóng góp nhiều nhất?", expanded=True):
-        comparison_df = pd.DataFrame(
-            {
-                "Yếu tố mới": list(cumulative_new.keys()),
-                "Đóng góp log tích lũy 2020-2025": list(cumulative_new.values()),
-            }
-        ).sort_values("Đóng góp log tích lũy 2020-2025", ascending=False)
-        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
-        st.markdown(
-            f"Theo bộ hệ số và dữ liệu hiện tại, **{strongest_new}** đóng góp lớn nhất trong ba yếu tố mới. "
-            "Kết quả được quyết định đồng thời bởi tốc độ tăng của biến và độ co giãn gán cho biến đó; vì vậy "
-            "không nên diễn giải đây là quan hệ nhân quả đã được kiểm định."
-        )
-
-    with st.expander("c) Mục tiêu kinh tế số đạt 30% GDP năm 2030 có khả thi không?", expanded=True):
-        st.markdown(
-            f"Từ mức **{D[-1]:.1f}% năm 2025** lên **30% năm 2030**, tỷ trọng kinh tế số phải tăng trung bình "
-            f"khoảng **{digital_pp_required:.2f} điểm phần trăm/năm**, tương đương tăng **{digital_cagr_required:.2f}%/năm** "
-            "theo mức chỉ số. Mô hình cho thấy mục tiêu có thể được mô phỏng, nhưng để đánh giá khả thi cần bổ sung "
-            "các ràng buộc về ngân sách, năng lực nhân lực, hạ tầng dữ liệu, an ninh mạng, khả năng hấp thụ của doanh nghiệp, "
-            "chênh lệch vùng và độ trễ chính sách."
-        )
-
+    with st.expander("a) TFP tăng hay giảm — phản ánh điều gì?", expanded=True):
+        st.markdown(f"TFP **{tfp_direction}** giai đoạn 2020–2025, CAGR ≈ **{tfp_cagr:.2f}%/năm**. Xu hướng này phản ánh cải thiện (hoặc suy giảm) chất lượng tăng trưởng ngoài tích lũy vốn và lao động thuần túy.")
+    with st.expander("b) Trong D, AI, H — yếu tố nào đóng góp nhiều nhất?", expanded=True):
+        st.markdown(f"Dựa trên log tích lũy 2020–2025, **{strongest_new}** đóng góp lớn nhất trong ba yếu tố mới. Tuy nhiên kết quả phụ thuộc bộ hệ số đàn hồi.")
+    with st.expander("c) D đạt 30% GDP 2030 đòi hỏi gì?", expanded=True):
+        digital_cagr = ((30/D[-1])**(1/5)-1)*100
+        st.markdown(f"Kinh tế số hiện ở **{D[-1]:.1f}%**. Để đạt **30%** vào 2030 cần CAGR ≈ **{digital_cagr:.2f}%/năm**, đòi hỏi đầu tư hạ tầng, nhân lực số và cải thiện môi trường pháp lý đồng bộ.")
 
     ai_analysis_panel(
-        lesson_name='Bài 1 - Cobb-Douglas mở rộng với AI và số hóa',
-        model_name='Cobb-Douglas + TFP + Growth Accounting',
-        input_params={"lesson": 'Bài 1 - Cobb-Douglas mở rộng với AI và số hóa', "model": 'Cobb-Douglas + TFP + Growth Accounting'},
-        result_data=_collect_ai_context(locals()),
-        key="ai_bai_1",
-    )
+        lesson_name="Bài 1 — Cobb-Douglas + AI",
+        model_name="Extended Cobb-Douglas + TFP + Growth Accounting",
+        input_params={"alpha": alpha, "beta": beta, "gamma": gamma, "delta": delta, "theta": theta},
+        result_data=_collect_ai_context(locals()), key="ai_bai_1")
+
+
+# ──────────────────────────────────────────────────────────
+# BÀI 2 — LP Ngân sách số  (theme: xanh lá + vàng)
+# ──────────────────────────────────────────────────────────
+
+def _b2_solve_scipy(budget=100.0, min_human=20.0):
+    from scipy.optimize import linprog
+    c = [-0.85, -1.20, -0.95, -1.35]
+    A_ub = [[1, 1, 1, 1], [-1, 0, 0, 0], [0, -1, 0, 0],
+            [0, 0, -1, 0], [0, 0, 0, -1], [0.35, -0.65, 0.35, -0.65]]
+    b_ub = [budget, -25, -15, -min_human, -10, 0]
+    return linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None)]*4, method="highs")
 
 
 def page_2():
-    hero(
-        "Bài 2 — Phân bổ ngân sách đơn giản theo 4 hạng mục đầu tư số",
-        "Trình bày đầy đủ các mục 2.1-2.5: bối cảnh, mô hình LP, diễn giải hệ số, bốn yêu cầu lập trình và thảo luận chính sách.",
-        ["2.1-2.5", "Linear Programming", "SciPy", "PuLP", "Shadow price"],
-    )
+    _inject_page_css("""
+    .b2-budget-card{background:#F6FFF8;border:1px solid #ECECF1;border-left:4px solid #059669;
+                    border-radius:10px;padding:16px 20px;margin-bottom:10px}
+    .b2-warn{background:#FFFBEB;border:1px solid #ECECF1;border-left:4px solid #F59E0B;
+             border-radius:10px;padding:13px 16px;margin:8px 0;color:#78350F}
+    .b2-info{background:#F0F7FF;border:1px solid #ECECF1;border-left:4px solid #3B82F6;
+             border-radius:10px;padding:13px 16px;margin:8px 0;color:#1E3A5F}
+    .b2-alloc-bar{height:6px;border-radius:6px;margin-top:4px}
+    """)
+
+    tags = "".join([_pill(t, "#059669", "rgba(5,150,105,.1)", "rgba(5,150,105,.3)")
+                    for t in ["2.1–2.5", "LP", "SciPy", "PuLP", "Shadow price", "Sensitivity"]])
+    _banner("💰", "Bài 2 — LP Phân bổ ngân sách số 4 hạng mục",
+            "Tối đa hóa GDP kỳ vọng qua 4 kênh đầu tư: Hạ tầng số · AI/Dữ liệu · Nhân lực số · R&D. Giải bằng SciPy, PuLP và phân tích shadow price.",
+            tags, "#059669")
 
     show_assignment_structure(2)
 
-    # =====================================================
-    # Hàm giải dùng chung
-    # =====================================================
-    item_names = [
-        "x₁ - Hạ tầng số",
-        "x₂ - AI và dữ liệu",
-        "x₃ - Nhân lực số",
-        "x₄ - R&D công nghệ",
-    ]
-    impact = np.array([0.85, 1.20, 0.95, 1.35], dtype=float)
+    item_names = ["x₁ — Hạ tầng số", "x₂ — AI/Dữ liệu", "x₃ — Nhân lực số", "x₄ — R&D"]
+    item_colors = ["#3B82F6", "#8B5CF6", "#EC4899", "#F97316"]
+    impact_coefs = [0.85, 1.20, 0.95, 1.35]
 
-    def solve_with_scipy(budget=100.0, min_human=20.0):
-        # Tối đa hóa Z tương đương tối thiểu hóa -Z
-        c = -impact
-        A_ub = np.array(
-            [
-                [1.00, 1.00, 1.00, 1.00],      # tổng ngân sách
-                [-1.00, 0.00, 0.00, 0.00],     # x1 >= 25
-                [0.00, -1.00, 0.00, 0.00],     # x2 >= 15
-                [0.00, 0.00, -1.00, 0.00],     # x3 >= min_human
-                [0.00, 0.00, 0.00, -1.00],     # x4 >= 10
-                [0.35, -0.65, 0.35, -0.65],    # x2+x4 >= 35% tổng
-            ],
-            dtype=float,
-        )
-        b_ub = np.array(
-            [budget, -25.0, -15.0, -float(min_human), -10.0, 0.0],
-            dtype=float,
-        )
-        return linprog(
-            c,
-            A_ub=A_ub,
-            b_ub=b_ub,
-            bounds=[(0, None)] * 4,
-            method="highs",
-        )
+    # ── 2.1 Bối cảnh ──
+    st.markdown("## 2.1 · Bối cảnh")
+    c1, c2 = st.columns([1.3, 1])
+    with c1:
+        st.markdown("""
+        <div class="b2-budget-card">
+          <div style="font-weight:700;color:#1F2430;margin-bottom:8px;font-family:'Outfit',sans-serif">💡 Bài toán phân bổ ngân sách</div>
+          <div style="color:#4B5563;font-size:.92rem;line-height:1.7">
+            Chính phủ có <b>100 nghìn tỷ VND</b> để đầu tư vào 4 hạng mục chuyển đổi số.<br>
+            Mục tiêu: <b>tối đa hóa GDP kỳ vọng</b> với các ràng buộc chi tiêu tối thiểu
+            và tỷ lệ công nghệ chiến lược ≥ 35%.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+        <div style="background:#fff;border:1px solid #ECECF1;border-radius:10px;padding:14px 18px">
+          <div style="font-weight:700;color:#1F2430;margin-bottom:8px;font-family:'Outfit',sans-serif">📋 Hệ số tác động</div>
+        """, unsafe_allow_html=True)
+        for name, coef, color in zip(item_names, impact_coefs, item_colors):
+            bar_w = int(coef / 1.35 * 100)
+            st.markdown(f"""
+              <div style="margin-bottom:10px">
+                <div style="display:flex;justify-content:space-between;font-size:.82rem">
+                  <span style="color:#4B5563">{name}</span>
+                  <span style="font-weight:700;color:{color}">{coef}</span>
+                </div>
+                <div class="b2-alloc-bar" style="background:#F3F4F6">
+                  <div style="width:{bar_w}%;height:100%;border-radius:6px;background:{color}"></div>
+                </div>
+              </div>
+            """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    def build_allocation_table(x):
-        out = pd.DataFrame(
-            {
-                "Hạng mục": item_names,
-                "Phân bổ tối ưu (nghìn tỷ VND)": x,
-                "Hệ số tác động": impact,
-            }
-        )
-        out["GDP kỳ vọng tăng thêm"] = (
-            out["Phân bổ tối ưu (nghìn tỷ VND)"] * out["Hệ số tác động"]
-        )
-        return out
+    # ── 2.2 Mô hình ──
+    st.markdown("## 2.2 · Mô hình LP")
+    st.latex(r"\max \; Z = 0.85x_1 + 1.20x_2 + 0.95x_3 + 1.35x_4")
+    st.latex(r"\text{s.t.} \quad x_1+x_2+x_3+x_4 \leq 100; \quad x_1\geq25, x_2\geq15, x_3\geq20, x_4\geq10; \quad x_2+x_4\geq0.35(x_1+x_2+x_3+x_4)")
 
-    # Nghiệm chuẩn của đề bài
-    base_res = solve_with_scipy(budget=100.0, min_human=20.0)
-    if not base_res.success:
-        st.error("Bài toán chuẩn B=100 không khả thi. Hãy kiểm tra lại các ràng buộc.")
-        return
+    # ── 2.3 Hệ số mục tiêu ──
+    st.markdown("## 2.3 · Diễn giải hệ số")
+    coef_df = pd.DataFrame({"Hạng mục": item_names, "Hệ số tác động": impact_coefs,
+        "Sàn tối thiểu": [25, 15, 20, 10], "Ý nghĩa": [
+            "Mỗi 1 nghìn tỷ → GDP tăng 0,85 nghìn tỷ",
+            "Mỗi 1 nghìn tỷ → GDP tăng 1,20 nghìn tỷ",
+            "Mỗi 1 nghìn tỷ → GDP tăng 0,95 nghìn tỷ",
+            "Mỗi 1 nghìn tỷ → GDP tăng 1,35 nghìn tỷ"]})
+    st.dataframe(coef_df, use_container_width=True, hide_index=True)
 
+    # ── Solve base ──
+    base_res = _b2_solve_scipy(100.0, 20.0)
     base_x = base_res.x
     base_z = -base_res.fun
-    base_table = build_allocation_table(base_x)
-    strategic_share = 100 * (base_x[1] + base_x[3]) / max(base_x.sum(), 1e-12)
+    strategic_share = 100 * (base_x[1] + base_x[3]) / base_x.sum()
 
-    # =====================================================
-    # 2.1. Bối cảnh Việt Nam
-    # =====================================================
-    st.markdown("## 2.1. Bối cảnh Việt Nam")
-    st.markdown(
-        """
-        Theo Chương trình Chuyển đổi số quốc gia, Việt Nam đặt mục tiêu nâng tỷ trọng
-        kinh tế số và thúc đẩy đồng thời hạ tầng số, dữ liệu, trí tuệ nhân tạo, nhân lực
-        số và nghiên cứu phát triển. Giả sử Chính phủ có **100 nghìn tỷ VND** để phân bổ
-        cho bốn hạng mục:
+    def build_alloc_table(x):
+        return pd.DataFrame({"Hạng mục": item_names, "Phân bổ tối ưu (nghìn tỷ)": x,
+            "Hệ số": impact_coefs, "GDP tăng thêm": x * impact_coefs})
 
-        - **x₁:** hạ tầng số;
-        - **x₂:** AI và dữ liệu;
-        - **x₃:** nhân lực số;
-        - **x₄:** R&D công nghệ.
+    base_table = build_alloc_table(base_x)
 
-        Bài toán cần xác định cơ cấu phân bổ làm **tăng GDP kỳ vọng lớn nhất**, nhưng vẫn
-        bảo đảm mức đầu tư tối thiểu và tỷ trọng tối thiểu dành cho công nghệ chiến lược.
-        """
-    )
+    # ── 2.4 Tabs ──
+    st.markdown("## 2.4 · Yêu cầu lập trình")
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["⚡ 2.4.1 — SciPy", "🔧 2.4.2 — PuLP & Shadow", "📊 2.4.3 — Sensitivity B", "🔄 2.4.4 — x₃ ≥ 30"])
 
-    context_df = pd.DataFrame(
-        {
-            "Hạng mục": item_names,
-            "Mức tối thiểu": [25, 15, 20, 10],
-            "Hệ số GDP kỳ vọng": impact,
-            "Ý nghĩa": [
-                "Nền tảng kết nối, trung tâm dữ liệu và hạ tầng số",
-                "AI, dữ liệu lớn và năng lực xử lý số",
-                "Đào tạo kỹ năng số và kỹ sư AI",
-                "Nghiên cứu, đổi mới sáng tạo và công nghệ lõi",
-            ],
-        }
-    )
-    st.dataframe(context_df, use_container_width=True, hide_index=True)
-
-    # =====================================================
-    # 2.2. Mô hình toán học
-    # =====================================================
-    st.markdown("## 2.2. Mô hình toán học")
-    st.markdown("### Biến quyết định")
-    st.latex(
-        r"x_1=\text{đầu tư hạ tầng số},\quad "
-        r"x_2=\text{đầu tư AI và dữ liệu},\quad "
-        r"x_3=\text{đầu tư nhân lực số},\quad "
-        r"x_4=\text{đầu tư R\&D}"
-    )
-
-    st.markdown("### Hàm mục tiêu")
-    st.latex(r"\max Z=0.85x_1+1.20x_2+0.95x_3+1.35x_4")
-
-    st.markdown("### Các ràng buộc")
-    st.latex(r"x_1+x_2+x_3+x_4\leq 100")
-    st.latex(r"x_1\geq 25,\quad x_2\geq 15,\quad x_3\geq 20,\quad x_4\geq 10")
-    st.latex(
-        r"x_2+x_4\geq 0.35(x_1+x_2+x_3+x_4)"
-    )
-    st.latex(r"x_1,x_2,x_3,x_4\geq 0")
-
-    st.info(
-        "Ràng buộc công nghệ chiến lược có thể chuyển về dạng chuẩn của linprog: "
-        "0,35x₁ - 0,65x₂ + 0,35x₃ - 0,65x₄ ≤ 0."
-    )
-
-    # =====================================================
-    # 2.3. Diễn giải hệ số mục tiêu
-    # =====================================================
-    st.markdown("## 2.3. Diễn giải hệ số mục tiêu")
-    coefficient_df = pd.DataFrame(
-        {
-            "Biến": ["x₁", "x₂", "x₃", "x₄"],
-            "Hạng mục": [
-                "Hạ tầng số",
-                "AI và dữ liệu",
-                "Nhân lực số",
-                "R&D công nghệ",
-            ],
-            "Hệ số": impact,
-            "Diễn giải": [
-                "Một đơn vị đầu tư tạo 0,85 đơn vị GDP kỳ vọng",
-                "Một đơn vị đầu tư tạo 1,20 đơn vị GDP kỳ vọng",
-                "Một đơn vị đầu tư tạo 0,95 đơn vị GDP kỳ vọng",
-                "Một đơn vị đầu tư tạo 1,35 đơn vị GDP kỳ vọng",
-            ],
-        }
-    )
-    st.dataframe(coefficient_df, use_container_width=True, hide_index=True)
-    st.markdown(
-        """
-        Trong mô hình giả định, **R&D có hệ số cao nhất (1,35)**, tiếp theo là
-        **AI và dữ liệu (1,20)**, **nhân lực số (0,95)** và **hạ tầng số (0,85)**.
-        Đây là hệ số tác động kỳ vọng dùng cho bài tập, không phải ước lượng nhân quả
-        đã được kiểm định từ dữ liệu vi mô.
-        """
-    )
-
-    # =====================================================
-    # 2.4. Yêu cầu lập trình
-    # =====================================================
-    st.markdown("## 2.4. Yêu cầu lập trình")
-    tab241, tab242, tab243, tab244 = st.tabs(
-        [
-            "2.4.1 - SciPy",
-            "2.4.2 - PuLP & dual",
-            "2.4.3 - Độ nhạy ngân sách",
-            "2.4.4 - Ưu tiên nhân lực",
-        ]
-    )
-
-    with tab241:
-        st.markdown("### Câu 2.4.1. Giải bằng scipy.optimize.linprog")
-        kpi_cards(
-            [
-                ("Giá trị tối ưu Z*", f"{base_z:,.2f}", "nghìn tỷ VND GDP kỳ vọng"),
-                ("Ngân sách sử dụng", f"{base_x.sum():,.2f}", "trên tổng 100"),
-                ("AI + R&D", f"{strategic_share:.1f}%", "yêu cầu tối thiểu 35%"),
-                (
-                    "Hạng mục nhận nhiều nhất",
-                    base_table.sort_values(
-                        "Phân bổ tối ưu (nghìn tỷ VND)", ascending=False
-                    ).iloc[0]["Hạng mục"],
-                    "theo nghiệm tối ưu",
-                ),
-            ]
-        )
-        c1, c2 = st.columns([1, 1])
+    with tab1:
+        _kpi_row([("Z* tối ưu", f"{base_z:,.2f}", "nghìn tỷ VND GDP kỳ vọng"),
+                  ("Ngân sách dùng", f"{base_x.sum():,.0f}/100", "nghìn tỷ VND"),
+                  ("AI + R&D", f"{strategic_share:.1f}%", "≥ 35% yêu cầu ✓"),
+                  ("Hạng mục nhận nhiều", base_table.sort_values("Phân bổ tối ưu (nghìn tỷ)", ascending=False).iloc[0]["Hạng mục"], "max allocation")])
+        c1, c2 = st.columns([1, 1.1])
         with c1:
-            st.dataframe(
-                base_table.style.format(
-                    {
-                        "Phân bổ tối ưu (nghìn tỷ VND)": "{:.2f}",
-                        "Hệ số tác động": "{:.2f}",
-                        "GDP kỳ vọng tăng thêm": "{:.2f}",
-                    }
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
+            st.dataframe(base_table.style.format({"Phân bổ tối ưu (nghìn tỷ)": "{:.2f}",
+                "Hệ số": "{:.2f}", "GDP tăng thêm": "{:.2f}"}), use_container_width=True, hide_index=True)
         with c2:
-            st.plotly_chart(
-                plot_bar(
-                    base_table,
-                    "Hạng mục",
-                    "Phân bổ tối ưu (nghìn tỷ VND)",
-                    "Phân bổ tối ưu theo SciPy",
-                    text="Phân bổ tối ưu (nghìn tỷ VND)",
-                ),
-                use_container_width=True,
-            )
-
-        residual_df = pd.DataFrame(
-            {
-                "Ràng buộc": [
-                    "Ngân sách tổng",
-                    "x₁ tối thiểu",
-                    "x₂ tối thiểu",
-                    "x₃ tối thiểu",
-                    "x₄ tối thiểu",
-                    "Tỷ trọng AI + R&D",
-                ],
-                "Slack theo SciPy": base_res.ineqlin.residual,
-                "Đang chặt?": np.isclose(
-                    base_res.ineqlin.residual, 0.0, atol=1e-7
-                ),
-            }
-        )
-        st.dataframe(residual_df, use_container_width=True, hide_index=True)
-
-        with st.expander("Xem mã Python cho câu 2.4.1"):
-            st.code(
-                """from scipy.optimize import linprog
-
+            fig = px.pie(base_table, values="Phân bổ tối ưu (nghìn tỷ)", names="Hạng mục",
+                         title="Cơ cấu phân bổ ngân sách tối ưu",
+                         color_discrete_sequence=item_colors, template=PLOT_TEMPLATE)
+            fig.update_layout(height=320)
+            st.plotly_chart(fig, use_container_width=True)
+        with st.expander("Xem code SciPy"):
+            st.code("""from scipy.optimize import linprog
 c = [-0.85, -1.20, -0.95, -1.35]
-A_ub = [
-    [1, 1, 1, 1],
-    [-1, 0, 0, 0],
-    [0, -1, 0, 0],
-    [0, 0, -1, 0],
-    [0, 0, 0, -1],
-    [0.35, -0.65, 0.35, -0.65],
-]
-b_ub = [100, -25, -15, -20, -10, 0]
+res = linprog(c, A_ub=..., b_ub=..., bounds=[(0,None)]*4, method='highs')
+Z_star, x_star = -res.fun, res.x""", language="python")
 
-res = linprog(
-    c,
-    A_ub=A_ub,
-    b_ub=b_ub,
-    bounds=[(0, None)] * 4,
-    method="highs",
-)
-Z_star = -res.fun
-x_star = res.x""",
-                language="python",
-            )
-
-    with tab242:
-        st.markdown("### Câu 2.4.2. Giải lại bằng PuLP và đọc giá đối ngẫu")
+    with tab2:
         try:
             import pulp
-
-            model = pulp.LpProblem("VN_Digital_Budget", pulp.LpMaximize)
-            x1 = pulp.LpVariable("x1_Infrastructure", lowBound=0)
-            x2 = pulp.LpVariable("x2_AI_Data", lowBound=0)
-            x3 = pulp.LpVariable("x3_Digital_Human", lowBound=0)
-            x4 = pulp.LpVariable("x4_RD", lowBound=0)
-
-            model += (
-                0.85 * x1 + 1.20 * x2 + 0.95 * x3 + 1.35 * x4,
-                "Expected_GDP_Gain",
-            )
-            model += x1 + x2 + x3 + x4 <= 100, "C1_Total_Budget"
-            model += x1 >= 25, "C2_Min_Infrastructure"
-            model += x2 >= 15, "C3_Min_AI_Data"
-            model += x3 >= 20, "C4_Min_Digital_Human"
-            model += x4 >= 10, "C5_Min_RD"
-            model += (
-                x2 + x4 >= 0.35 * (x1 + x2 + x3 + x4),
-                "C6_Strategic_Technology",
-            )
-
-            solver = pulp.PULP_CBC_CMD(msg=False)
-            model.solve(solver)
-
-            pulp_status = pulp.LpStatus[model.status]
-            pulp_x = np.array(
-                [x1.value(), x2.value(), x3.value(), x4.value()],
-                dtype=float,
-            )
+            model = pulp.LpProblem("VN_Budget", pulp.LpMaximize)
+            x1 = pulp.LpVariable("x1", lowBound=0); x2 = pulp.LpVariable("x2", lowBound=0)
+            x3 = pulp.LpVariable("x3", lowBound=0); x4 = pulp.LpVariable("x4", lowBound=0)
+            model += 0.85*x1 + 1.20*x2 + 0.95*x3 + 1.35*x4
+            model += x1+x2+x3+x4 <= 100, "C1"
+            model += x1 >= 25, "C2"; model += x2 >= 15, "C3"
+            model += x3 >= 20, "C4"; model += x4 >= 10, "C5"
+            model += x2+x4 >= 0.35*(x1+x2+x3+x4), "C6"
+            model.solve(pulp.PULP_CBC_CMD(msg=False))
+            pulp_x = np.array([x1.value(), x2.value(), x3.value(), x4.value()], float)
             pulp_z = float(pulp.value(model.objective))
-
-            pulp_table = build_allocation_table(pulp_x)
-            compare_df = pd.DataFrame(
-                {
-                    "Hạng mục": item_names,
-                    "SciPy": base_x,
-                    "PuLP": pulp_x,
-                    "Chênh lệch tuyệt đối": np.abs(base_x - pulp_x),
-                }
-            )
-
-            dual_rows = []
-            for name, constraint in model.constraints.items():
-                dual_rows.append(
-                    {
-                        "Ràng buộc": name,
-                        "Giá đối ngẫu (pi)": getattr(constraint, "pi", np.nan),
-                        "Slack": getattr(constraint, "slack", np.nan),
-                    }
-                )
+            dual_rows = [{"Ràng buộc": k, "Shadow price (π)": getattr(v, "pi", None),
+                          "Slack": getattr(v, "slack", None)} for k, v in model.constraints.items()]
             dual_df = pd.DataFrame(dual_rows)
-
-            budget_dual_series = dual_df.loc[
-                dual_df["Ràng buộc"] == "C1_Total_Budget",
-                "Giá đối ngẫu (pi)",
-            ]
-            budget_dual = (
-                float(budget_dual_series.iloc[0])
-                if len(budget_dual_series)
-                else np.nan
-            )
-
-            kpi_cards(
-                [
-                    ("Trạng thái PuLP", pulp_status, "CBC solver"),
-                    ("Z* PuLP", f"{pulp_z:,.2f}", "so sánh với SciPy"),
-                    (
-                        "Sai lệch nghiệm",
-                        f"{np.max(np.abs(base_x - pulp_x)):.6f}",
-                        "max |SciPy - PuLP|",
-                    ),
-                    (
-                        "Shadow price ngân sách",
-                        f"{budget_dual:.2f}"
-                        if np.isfinite(budget_dual)
-                        else "Không đọc được",
-                        "GDP kỳ vọng / 1 đơn vị ngân sách",
-                    ),
-                ]
-            )
-
-            st.markdown("#### So sánh nghiệm SciPy và PuLP")
-            st.dataframe(
-                compare_df.style.format(
-                    {
-                        "SciPy": "{:.4f}",
-                        "PuLP": "{:.4f}",
-                        "Chênh lệch tuyệt đối": "{:.6f}",
-                    }
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            st.markdown("#### Giá đối ngẫu và slack")
-            st.dataframe(
-                dual_df.style.format(
-                    {
-                        "Giá đối ngẫu (pi)": "{:.4f}",
-                        "Slack": "{:.4f}",
-                    }
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            if np.isfinite(budget_dual):
-                st.info(
-                    f"Giá đối ngẫu của ràng buộc ngân sách tổng là khoảng "
-                    f"**{budget_dual:.2f}**. Trong vùng độ nhạy hiện tại, tăng thêm "
-                    f"1 nghìn tỷ VND ngân sách làm Z* tăng xấp xỉ "
-                    f"**{budget_dual:.2f} nghìn tỷ VND**."
-                )
-            else:
-                st.warning(
-                    "CBC trong môi trường hiện tại không trả về thuộc tính dual. "
-                    "Bạn vẫn có thể dùng marginal của HiGHS ở bảng SciPy hoặc cài CBC đầy đủ."
-                )
-
-            with st.expander("Xem mã Python cho câu 2.4.2"):
-                st.code(
-                    """import pulp
-
-m = pulp.LpProblem("VN_Digital_Budget", pulp.LpMaximize)
-x1 = pulp.LpVariable("x1", lowBound=0)
-x2 = pulp.LpVariable("x2", lowBound=0)
-x3 = pulp.LpVariable("x3", lowBound=0)
-x4 = pulp.LpVariable("x4", lowBound=0)
-
-m += 0.85*x1 + 1.20*x2 + 0.95*x3 + 1.35*x4
-m += x1 + x2 + x3 + x4 <= 100, "Total_Budget"
-m += x1 >= 25, "Min_I"
-m += x2 >= 15, "Min_AI"
-m += x3 >= 20, "Min_H"
-m += x4 >= 10, "Min_RD"
-m += x2 + x4 >= 0.35*(x1+x2+x3+x4), "Strategic"
-
-m.solve(pulp.PULP_CBC_CMD(msg=False))
-
-for name, constraint in m.constraints.items():
-    print(name, constraint.pi, constraint.slack)""",
-                    language="python",
-                )
-
+            budget_pi_s = dual_df.loc[dual_df["Ràng buộc"]=="C1","Shadow price (π)"]
+            budget_pi = float(budget_pi_s.iloc[0]) if len(budget_pi_s) else float("nan")
+            _kpi_row([("Trạng thái PuLP", pulp.LpStatus[model.status], "CBC solver"),
+                      ("Z* PuLP", f"{pulp_z:,.2f}", "khớp SciPy"),
+                      ("Max |SciPy-PuLP|", f"{np.max(np.abs(base_x-pulp_x)):.6f}", "sai lệch"),
+                      ("Shadow price B", f"{budget_pi:.4f}" if np.isfinite(budget_pi) else "N/A", "tăng 1 nghìn tỷ → Z tăng")])
+            st.dataframe(dual_df.style.format({"Shadow price (π)": "{:.4f}", "Slack": "{:.4f}"},
+                         na_rep="N/A"), use_container_width=True, hide_index=True)
+            if np.isfinite(budget_pi):
+                st.markdown(f'<div class="b2-info">Shadow price ngân sách ≈ <b>{budget_pi:.4f}</b>. Mỗi 1 nghìn tỷ tăng thêm → GDP kỳ vọng tăng thêm <b>{budget_pi:.4f} nghìn tỷ</b>.</div>', unsafe_allow_html=True)
         except ModuleNotFoundError:
-            st.error(
-                "Chưa cài thư viện PuLP. Mở requirements.txt, thêm dòng `pulp>=2.7`, "
-                "lưu file, sau đó chạy `pip install -r requirements.txt`."
-            )
+            st.error("Chưa cài PuLP. Thêm `pulp>=2.7` vào requirements.txt.")
 
-    with tab243:
-        st.markdown("### Câu 2.4.3. Phân tích độ nhạy ngân sách B")
-        budget_values = [100.0, 120.0, 140.0]
-        sensitivity_rows = []
+    with tab3:
+        sens_rows = []
+        for B in [100.0, 120.0, 140.0]:
+            r = _b2_solve_scipy(B, 20.0)
+            if r.success:
+                sens_rows.append({"B": B, "Z*": -r.fun, "x₁": r.x[0], "x₂": r.x[1],
+                                   "x₃": r.x[2], "x₄": r.x[3], "AI+R&D%": 100*(r.x[1]+r.x[3])/B})
+        sens_df = pd.DataFrame(sens_rows)
+        sens_df["ΔZ vs B=100"] = sens_df["Z*"] - sens_df.loc[0,"Z*"]
+        c1, c2 = st.columns([1, 1.2])
+        with c1:
+            st.dataframe(sens_df.style.format({k: "{:.2f}" for k in sens_df.columns}),
+                         use_container_width=True, hide_index=True)
+        with c2:
+            fig = px.line(sens_df, x="B", y="Z*", markers=True, template=PLOT_TEMPLATE,
+                          title="Đường cong Z*(B) — độ nhạy ngân sách")
+            fig.update_traces(line=dict(color="#059669", width=3), marker=dict(size=10))
+            fig.update_layout(height=300)
+            st.plotly_chart(fig, use_container_width=True)
+        if len(sens_df) >= 2:
+            mg = (sens_df.loc[1,"Z*"]-sens_df.loc[0,"Z*"])/(sens_df.loc[1,"B"]-sens_df.loc[0,"B"])
+            st.markdown(f'<div class="b2-info">Mỗi 1 nghìn tỷ ngân sách tăng thêm → Z* tăng ≈ <b>{mg:.4f} nghìn tỷ</b> (vùng tuyến tính).</div>', unsafe_allow_html=True)
 
-        for budget in budget_values:
-            res_b = solve_with_scipy(budget=budget, min_human=20.0)
-            if res_b.success:
-                x_b = res_b.x
-                sensitivity_rows.append(
-                    {
-                        "Ngân sách B": budget,
-                        "Z*": -res_b.fun,
-                        "x₁": x_b[0],
-                        "x₂": x_b[1],
-                        "x₃": x_b[2],
-                        "x₄": x_b[3],
-                        "AI + R&D (%)": 100
-                        * (x_b[1] + x_b[3])
-                        / max(x_b.sum(), 1e-12),
-                    }
-                )
-
-        sensitivity_df = pd.DataFrame(sensitivity_rows)
-        sensitivity_df["ΔZ so với B=100"] = (
-            sensitivity_df["Z*"] - sensitivity_df.loc[0, "Z*"]
-        )
-        sensitivity_df["Z tăng / 20 ngân sách"] = sensitivity_df["Z*"].diff()
-
-        st.dataframe(
-            sensitivity_df.style.format(
-                {
-                    "Ngân sách B": "{:.0f}",
-                    "Z*": "{:.2f}",
-                    "x₁": "{:.2f}",
-                    "x₂": "{:.2f}",
-                    "x₃": "{:.2f}",
-                    "x₄": "{:.2f}",
-                    "AI + R&D (%)": "{:.1f}",
-                    "ΔZ so với B=100": "{:.2f}",
-                    "Z tăng / 20 ngân sách": "{:.2f}",
-                }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        st.plotly_chart(
-            plot_line(
-                sensitivity_df,
-                "Ngân sách B",
-                "Z*",
-                "Đường cong độ nhạy Z*(B)",
-            ),
-            use_container_width=True,
-        )
-
-        allocation_long = sensitivity_df.melt(
-            id_vars=["Ngân sách B"],
-            value_vars=["x₁", "x₂", "x₃", "x₄"],
-            var_name="Biến",
-            value_name="Phân bổ",
-        )
-        fig_alloc = px.bar(
-            allocation_long,
-            x="Ngân sách B",
-            y="Phân bổ",
-            color="Biến",
-            barmode="stack",
-            template=PLOT_TEMPLATE,
-            title="Cơ cấu phân bổ khi ngân sách tăng",
-        )
-        fig_alloc.update_layout(height=430, margin=dict(l=10, r=10, t=54, b=10))
-        st.plotly_chart(fig_alloc, use_container_width=True)
-
-        marginal_growth = (
-            sensitivity_df.loc[1, "Z*"] - sensitivity_df.loc[0, "Z*"]
-        ) / (
-            sensitivity_df.loc[1, "Ngân sách B"]
-            - sensitivity_df.loc[0, "Ngân sách B"]
-        )
-        st.info(
-            f"Trong khoảng B=100-140, Z* tăng gần tuyến tính. Mỗi 1 nghìn tỷ VND "
-            f"ngân sách tăng thêm làm Z* tăng khoảng **{marginal_growth:.2f}** "
-            "nghìn tỷ VND theo hệ số mô hình."
-        )
-
-        with st.expander("Xem mã Python cho câu 2.4.3"):
-            st.code(
-                """rows = []
-for B in [100, 120, 140]:
-    res = solve_with_scipy(budget=B, min_human=20)
-    rows.append({
-        "B": B,
-        "Z_star": -res.fun,
-        "x1": res.x[0],
-        "x2": res.x[1],
-        "x3": res.x[2],
-        "x4": res.x[3],
-    })
-sensitivity_df = pd.DataFrame(rows)""",
-                language="python",
-            )
-
-    with tab244:
-        st.markdown("### Câu 2.4.4. Tăng sàn nhân lực số lên x₃ ≥ 30")
-        human_res = solve_with_scipy(budget=100.0, min_human=30.0)
-
-        if not human_res.success:
-            st.error(
-                "Bài toán không khả thi khi x₃ ≥ 30 với ngân sách B=100."
-            )
+    with tab4:
+        h30_res = _b2_solve_scipy(100.0, 30.0)
+        if not h30_res.success:
+            st.error("Bài toán không khả thi khi x₃ ≥ 30 với B=100.")
         else:
-            human_x = human_res.x
-            human_z = -human_res.fun
-            human_table = build_allocation_table(human_x)
+            h30_x = h30_res.x; h30_z = -h30_res.fun
+            _kpi_row([("Trạng thái", "Khả thi ✓", "x₃ ≥ 30"),
+                      ("Z* mới", f"{h30_z:,.2f}", "nghìn tỷ"),
+                      ("ΔZ*", f"{h30_z-base_z:,.2f}", "chi phí ưu tiên nhân lực"),
+                      ("Tỷ lệ giảm Z*", f"{100*(base_z-h30_z)/base_z:.2f}%", "so với mô hình gốc")])
+            comp = pd.DataFrame({"Hạng mục": item_names, "x₃≥20 (gốc)": base_x,
+                                  "x₃≥30 (nhân lực)": h30_x, "Thay đổi": h30_x-base_x})
+            st.dataframe(comp.style.format({c: "{:.2f}" for c in comp.columns if c!="Hạng mục"}),
+                         use_container_width=True, hide_index=True)
 
-            comparison_human = pd.DataFrame(
-                {
-                    "Hạng mục": item_names,
-                    "Mô hình gốc x₃≥20": base_x,
-                    "Ưu tiên nhân lực x₃≥30": human_x,
-                    "Thay đổi": human_x - base_x,
-                }
-            )
+    st.download_button("⬇️ Tải kết quả Bài 2 (CSV)",
+        data=base_table.to_csv(index=False).encode("utf-8-sig"),
+        file_name="bai2_lp_ngan_sach.csv", mime="text/csv", key="dl_b2")
 
-            kpi_cards(
-                [
-                    ("Trạng thái", "Khả thi", "x₃ ≥ 30"),
-                    ("Z* mới", f"{human_z:,.2f}", "nghìn tỷ VND"),
-                    ("Z* thay đổi", f"{human_z - base_z:,.2f}", "so với mô hình gốc"),
-                    (
-                        "Tỷ lệ giảm Z*",
-                        f"{100 * (base_z - human_z) / base_z:.2f}%",
-                        "chi phí ưu tiên nhân lực",
-                    ),
-                ]
-            )
-
-            st.dataframe(
-                comparison_human.style.format(
-                    {
-                        "Mô hình gốc x₃≥20": "{:.2f}",
-                        "Ưu tiên nhân lực x₃≥30": "{:.2f}",
-                        "Thay đổi": "{:+.2f}",
-                    }
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            compare_long = comparison_human.melt(
-                id_vars="Hạng mục",
-                value_vars=[
-                    "Mô hình gốc x₃≥20",
-                    "Ưu tiên nhân lực x₃≥30",
-                ],
-                var_name="Kịch bản",
-                value_name="Phân bổ",
-            )
-            fig_compare = px.bar(
-                compare_long,
-                x="Hạng mục",
-                y="Phân bổ",
-                color="Kịch bản",
-                barmode="group",
-                template=PLOT_TEMPLATE,
-                title="So sánh phân bổ trước và sau khi tăng sàn nhân lực",
-            )
-            fig_compare.update_layout(
-                height=430, margin=dict(l=10, r=10, t=54, b=10)
-            )
-            st.plotly_chart(fig_compare, use_container_width=True)
-
-            st.info(
-                f"Bài toán vẫn khả thi. Khi buộc x₃ tăng thêm 10 đơn vị, một phần "
-                f"ngân sách phải dịch chuyển khỏi hạng mục có lợi ích biên cao hơn. "
-                f"Do đó Z* giảm từ **{base_z:.2f}** xuống **{human_z:.2f}**, "
-                f"tức giảm **{base_z - human_z:.2f}**."
-            )
-
-            with st.expander("Xem mã Python cho câu 2.4.4"):
-                st.code(
-                    """# Thay ràng buộc x3 >= 20 bằng x3 >= 30
-res_priority_H = solve_with_scipy(
-    budget=100,
-    min_human=30,
-)
-print(res_priority_H.success)
-print(-res_priority_H.fun)
-print(res_priority_H.x)""",
-                    language="python",
-                )
-
-    # =====================================================
-    # Tải kết quả
-    # =====================================================
-    export_df = base_table.copy()
-    export_df["Kịch bản"] = "B=100, x3>=20"
-    st.download_button(
-        "Tải kết quả Bài 2 dạng CSV",
-        data=export_df.to_csv(index=False).encode("utf-8-sig"),
-        file_name="bai2_lp_phan_bo_ngan_sach.csv",
-        mime="text/csv",
-        key="download_bai2",
-    )
-
-    # =====================================================
-    # 2.5. Câu hỏi thảo luận chính sách
-    # =====================================================
-    st.markdown("## 2.5. Câu hỏi thảo luận chính sách")
-
-    # Shadow price từ SciPy/HiGHS cho bài toán tối thiểu hóa -Z
+    # ── 2.5 ──
+    st.markdown("## 2.5 · Thảo luận chính sách")
     scipy_budget_shadow = -float(base_res.ineqlin.marginals[0])
+    with st.expander("a) Ngân sách tăng 1 tỷ → GDP tăng bao nhiêu?", expanded=True):
+        st.markdown(f"Shadow price ngân sách (HiGHS) ≈ **{scipy_budget_shadow:.4f} nghìn tỷ/nghìn tỷ**. Tăng 1 tỷ VND → GDP tăng ≈ **{scipy_budget_shadow*0.001:.4f} nghìn tỷ** trong vùng độ nhạy hiện tại.")
+    with st.expander("b) Vì sao R&D hệ số cao nhất nhưng sàn thấp nhất?", expanded=True):
+        st.markdown("R&D có lợi ích lan tỏa dài hạn nhưng độ trễ lớn, rủi ro thất bại và khó hấp thụ nếu thiếu nhân lực. Nghiệm tối ưu vẫn phân bổ phần dư vào R&D sau khi thỏa sàn các hạng mục khác.")
+    with st.expander("c) Tỷ lệ 35% AI+R&D có khả thi thực tiễn?", expanded=True):
+        st.markdown(f"Nghiệm hiện tại: AI+R&D = **{strategic_share:.1f}%** > 35%. Khả thi về toán học. Thực tiễn cần thêm ràng buộc giải ngân, tiến độ, rủi ro và năng lực hấp thụ.")
 
-    with st.expander(
-        "a) Khi ngân sách tổng tăng thêm 1 tỷ VND, GDP kỳ vọng tăng thêm bao nhiêu?",
-        expanded=True,
-    ):
-        st.markdown(
-            f"Trong mô hình, biến ngân sách được đo bằng **nghìn tỷ VND**. Giá đối ngẫu của ràng buộc "
-            f"ngân sách tổng theo nghiệm HiGHS là khoảng **{scipy_budget_shadow:.2f} nghìn tỷ GDP / 1 nghìn tỷ VND**. "
-            f"Vì vậy, nếu ngân sách tăng thêm **1 tỷ VND** (=0,001 nghìn tỷ VND), GDP kỳ vọng tăng xấp xỉ "
-            f"**{scipy_budget_shadow * 0.001:.4f} nghìn tỷ VND**, tức khoảng **{scipy_budget_shadow:.2f} tỷ VND**. "
-            "Đây chỉ là lợi ích biên trong vùng độ nhạy của mô hình, không phải cận trên chắc chắn của chi phí cơ hội "
-            "vốn công vì chưa phản ánh thuế, nợ công, độ trễ, rủi ro triển khai và hiệu ứng lấn át."
-        )
-
-    with st.expander(
-        "b) Vì sao R&D có hệ số cao nhất nhưng mức tối thiểu thấp nhất?",
-        expanded=True,
-    ):
-        st.markdown(
-            "R&D có lợi ích lan tỏa dài hạn nhưng thường đi kèm độ trễ lớn, rủi ro thất bại, "
-            "khó hấp thụ nếu thiếu nhân lực và hạ tầng, đồng thời kết quả khó đo lường trong ngắn hạn. "
-            "Vì vậy, mô hình đặt sàn R&D thấp hơn để duy trì tính linh hoạt ngân sách. Tuy nhiên, "
-            "do hệ số mục tiêu của R&D cao nhất, nghiệm tối ưu vẫn có xu hướng phân bổ phần ngân sách "
-            "còn lại vào R&D sau khi đáp ứng các mức tối thiểu."
-        )
-
-    with st.expander(
-        "c) Tỷ lệ 35% cho AI + R&D có khả thi trong thực tiễn không?",
-        expanded=True,
-    ):
-        st.markdown(
-            f"Trong nghiệm chuẩn, AI + R&D chiếm khoảng **{strategic_share:.1f}%** tổng ngân sách, "
-            "cao hơn mức tối thiểu 35%, nên ràng buộc này khả thi về mặt toán học. Trong thực tiễn, "
-            "khả năng thực hiện còn phụ thuộc vào cạnh tranh ngân sách với giao thông, y tế, giáo dục "
-            "và an sinh xã hội; năng lực giải ngân; nguồn nhân lực; chất lượng dự án; cũng như cơ chế "
-            "giám sát hiệu quả đầu tư. Vì vậy cần bổ sung các ràng buộc về trần giải ngân, tiến độ, "
-            "rủi ro và năng lực hấp thụ."
-        )
+    ai_analysis_panel(lesson_name="Bài 2 — LP ngân sách số",
+        model_name="Linear Programming + SciPy/PuLP + Shadow Price",
+        input_params={"budget": 100, "min_human": 20},
+        result_data=_collect_ai_context(locals()), key="ai_bai_2")
 
 
-    ai_analysis_panel(
-        lesson_name='Bài 2 - LP phân bổ ngân sách số',
-        model_name='Linear Programming + SciPy/PuLP + Shadow Price',
-        input_params={"lesson": 'Bài 2 - LP phân bổ ngân sách số', "model": 'Linear Programming + SciPy/PuLP + Shadow Price'},
-        result_data=_collect_ai_context(locals()),
-        key="ai_bai_2",
-    )
-
-
-def _b3_column_map(df):
-    """
-    Xác định tên cột dữ liệu hiện có trong file sectors.
-    Nếu chưa có cột năng suất lao động, dùng tỷ trọng GDP làm biến đại diện.
-    """
-    productivity_col = (
-        "labor_productivity_million_VND"
-        if "labor_productivity_million_VND" in df.columns
-        else "gdp_share_2024_pct"
-    )
-
-    return {
-        "growth": "growth_rate_2024_pct",
-        "productivity": productivity_col,
-        "spillover": "spillover_coef_0_1",
-        "export": "export_billion_USD",
-        "employment": "labor_million",
-        "ai": "ai_readiness_0_100",
-        "risk": "automation_risk_pct",
-    }
-
-
-def _b3_prepare_data():
-    """
-    Đọc dữ liệu ngành và chuẩn hóa 7 tiêu chí về [0,1].
-    Risk là tiêu chí chi phí nên được trừ trong hàm Priority.
-    """
-    df = load_sectors().copy()
-    cmap = _b3_column_map(df)
-
-    norm = pd.DataFrame(index=df.index)
-
-    norm[cmap["growth"]] = minmax(df[cmap["growth"]])
-    norm[cmap["productivity"]] = minmax(df[cmap["productivity"]])
-    norm[cmap["spillover"]] = minmax(df[cmap["spillover"]])
-    norm[cmap["export"]] = minmax(df[cmap["export"]])
-    norm[cmap["employment"]] = minmax(df[cmap["employment"]])
-    norm[cmap["ai"]] = minmax(df[cmap["ai"]])
-    norm[cmap["risk"]] = minmax(df[cmap["risk"]])
-
-    return df, cmap, norm
-
-
-def _b3_priority_score(norm, cmap, weights):
-    """
-    Tính:
-    Priority = a1*Growth + a2*Productivity + a3*Spillover
-             + a4*Export + a5*Employment + a6*AI - a7*Risk
-    """
-    weights = np.asarray(weights, dtype=float)
-
-    positive_matrix = np.column_stack(
-        [
-            norm[cmap["growth"]].to_numpy(dtype=float),
-            norm[cmap["productivity"]].to_numpy(dtype=float),
-            norm[cmap["spillover"]].to_numpy(dtype=float),
-            norm[cmap["export"]].to_numpy(dtype=float),
-            norm[cmap["employment"]].to_numpy(dtype=float),
-            norm[cmap["ai"]].to_numpy(dtype=float),
-        ]
-    )
-
-    risk = norm[cmap["risk"]].to_numpy(dtype=float)
-
-    return positive_matrix @ weights[:6] - weights[6] * risk
-
+# ──────────────────────────────────────────────────────────
+# BÀI 3 — Priority 10 ngành  (theme: tím + hồng gradient)
+# ──────────────────────────────────────────────────────────
 
 def page_3():
-    hero(
-        "Bài 3 — Tính chỉ số ưu tiên ngành Priorityᵢ cho 10 ngành Việt Nam",
-        "Trình bày đầy đủ các mục 3.1-3.5: bối cảnh, mô hình, dữ liệu, chuẩn hóa, xếp hạng, độ nhạy trọng số và thảo luận chính sách.",
-        ["3.1-3.5", "Min-max", "MCDM", "AI readiness", "Policy weights"],
-    )
+    _inject_page_css("""
+    .b3-rank-badge{display:inline-flex;align-items:center;justify-content:center;
+                   width:26px;height:26px;border-radius:6px;font-weight:800;font-size:.78rem}
+    .b3-rank-1{background:#FEF3C7;color:#92400E}
+    .b3-rank-2{background:#F3F4F6;color:#374151}
+    .b3-rank-3{background:#FEE2E2;color:#991B1B}
+    .b3-weight-card{background:#fff;border:1px solid #ECECF1;border-radius:10px;
+                    padding:14px 16px;margin-bottom:8px}
+    .b3-tip{background:#FAF8FF;border:1px solid #ECECF1;border-left:4px solid #8B5CF6;
+            border-radius:10px;padding:13px 16px;margin:8px 0;color:#4C1D95}
+    """)
+
+    tags = "".join([_pill(t, "#8B5CF6", "rgba(139,92,246,.1)", "rgba(139,92,246,.3)")
+                    for t in ["3.1–3.5", "Min-max", "MCDM", "Priority", "AI readiness", "Sensitivity"]])
+    _banner("🏭", "Bài 3 — Chỉ số ưu tiên Priorityᵢ cho 10 ngành",
+            "Xây dựng chỉ số tổng hợp từ 7 tiêu chí: Tăng trưởng · Năng suất · Lan tỏa · Xuất khẩu · Việc làm · AI readiness · Rủi ro tự động hóa.",
+            tags, "#8B5CF6")
 
     show_assignment_structure(3)
 
     df, cmap, norm = _b3_prepare_data()
     sector_col = "sector_name_vi"
+    default_weights = np.array([0.15, 0.15, 0.20, 0.15, 0.10, 0.20, 0.15], float)
 
-    # =====================================================
-    # 3.1. Bối cảnh Việt Nam
-    # =====================================================
-    st.markdown("## 3.1. Bối cảnh Việt Nam")
-    st.markdown(
-        """
-        Việt Nam cần xác định ngành nào nên được ưu tiên chuyển đổi số và ứng dụng AI
-        trước để tạo hiệu ứng lan tỏa lớn nhất. Nếu chỉ dựa vào một chỉ tiêu như tốc độ
-        tăng trưởng hoặc năng suất lao động thì kết quả có thể bị thiên lệch.
+    # ── 3.1 Bối cảnh ──
+    st.markdown("## 3.1 · Bối cảnh")
+    c1, c2, c3 = st.columns(3)
+    for col, icon, title, body in [
+        (c1, "🎯", "Vấn đề", "Nếu chỉ dùng 1 tiêu chí → thiên lệch. Cần chỉ số tổng hợp phản ánh đa chiều."),
+        (c2, "📐", "Phương pháp", "Min-max normalize 7 tiêu chí → tính Priority có trọng số."),
+        (c3, "🌏", "Phạm vi", "10 ngành Việt Nam năm 2024 với dữ liệu từ Tổng cục Thống kê."),
+    ]:
+        with col:
+            st.markdown(f"""<div style="background:#fff;border:1px solid #ECECF1;border-top:3px solid #8B5CF6;border-radius:10px;
+                              padding:14px 16px 12px;height:100%">
+              <div style="font-size:20px;margin-bottom:6px">{icon}</div>
+              <div style="font-weight:700;color:#1F2430;font-size:.86rem;margin-bottom:4px;font-family:'Outfit',sans-serif">{title}</div>
+              <div style="color:#6B7280;font-size:.81rem;line-height:1.5">{body}</div>
+            </div>""", unsafe_allow_html=True)
 
-        Vì vậy, Bài 3 xây dựng một **chỉ số ưu tiên tổng hợp Priorityᵢ** dựa trên:
-        tăng trưởng, năng suất, hiệu ứng lan tỏa, xuất khẩu, việc làm, mức sẵn sàng AI
-        và rủi ro tự động hóa.
-        """
-    )
+    # ── 3.2 Mô hình ──
+    st.markdown("## 3.2 · Mô hình toán học")
+    st.latex(r"Priority_i = a_1\widetilde{G}_i + a_2\widetilde{P}_i + a_3\widetilde{S}_i + a_4\widetilde{X}_i + a_5\widetilde{E}_i + a_6\widetilde{AI}_i - a_7\widetilde{Risk}_i")
+    st.latex(r"\widetilde{x}_i = \frac{x_i - \min x}{\max x - \min x} \in [0,1]")
 
-    # =====================================================
-    # 3.2. Mô hình toán học
-    # =====================================================
-    st.markdown("## 3.2. Mô hình toán học")
+    # ── 3.3 Dữ liệu ──
+    st.markdown("## 3.3 · Dữ liệu 10 ngành 2024")
+    rename_map = {sector_col: "Ngành", cmap["growth"]: "Tăng trưởng %",
+        cmap.get("productivity","productivity"): "Năng suất", cmap["spillover"]: "Lan tỏa",
+        cmap["export"]: "XK (tỷ USD)", cmap["employment"]: "Việc làm (tr)",
+        cmap["ai"]: "AI readiness", cmap["risk"]: "Rủi ro %"}
+    display_cols = [sector_col, cmap["growth"], cmap["spillover"],
+                    cmap["export"], cmap["employment"], cmap["ai"], cmap["risk"]]
+    st.dataframe(df[display_cols].rename(columns=rename_map),
+                 use_container_width=True, hide_index=True)
 
-    st.latex(
-        r"Priority_i="
-        r"a_1Growth_i+a_2Productivity_i+a_3Spillover_i"
-        r"+a_4Export_i+a_5Employment_i+a_6AIReadiness_i"
-        r"-a_7Risk_i"
-    )
-
-    st.markdown("### Chuẩn hóa min-max")
-    st.latex(
-        r"\widetilde{x}_i="
-        r"\frac{x_i-\min(x)}{\max(x)-\min(x)}"
-    )
-
-    st.markdown(
-        """
-        Sáu tiêu chí đầu là **tiêu chí lợi ích**: giá trị càng cao càng tốt.
-        Rủi ro tự động hóa là **tiêu chí chi phí**, do đó được trừ khỏi tổng điểm.
-
-        Các biến được chuẩn hóa về thang từ 0 đến 1 trước khi tính chỉ số Priority.
-        """
-    )
-
-    # =====================================================
-    # 3.3. Dữ liệu 10 ngành Việt Nam năm 2024
-    # =====================================================
-    st.markdown("## 3.3. Dữ liệu 10 ngành Việt Nam năm 2024")
-
-    display_cols = [
-        sector_col,
-        cmap["growth"],
-        cmap["productivity"],
-        cmap["spillover"],
-        cmap["export"],
-        cmap["employment"],
-        cmap["ai"],
-        cmap["risk"],
-    ]
-
-    productivity_label = (
-        "Năng suất lao động"
-        if cmap["productivity"] == "labor_productivity_million_VND"
-        else "Tỷ trọng GDP đại diện năng suất"
-    )
-
-    rename_map = {
-        sector_col: "Ngành",
-        cmap["growth"]: "Tăng trưởng (%)",
-        cmap["productivity"]: productivity_label,
-        cmap["spillover"]: "Hiệu ứng lan tỏa",
-        cmap["export"]: "Xuất khẩu (tỷ USD)",
-        cmap["employment"]: "Việc làm (triệu người)",
-        cmap["ai"]: "AI readiness",
-        cmap["risk"]: "Rủi ro tự động hóa (%)",
-    }
-
-    st.dataframe(
-        df[display_cols].rename(columns=rename_map),
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    st.caption(
-        "Nếu file dữ liệu chưa có cột năng suất lao động, hệ thống sử dụng tỷ trọng GDP "
-        "làm biến đại diện để trang vẫn hoạt động ổn định."
-    )
-
-    # Bộ trọng số mặc định theo đề
-    default_weights = np.array(
-        [0.15, 0.15, 0.20, 0.15, 0.10, 0.20, 0.15],
-        dtype=float,
-    )
-
-    default_score = _b3_priority_score(
-        norm,
-        cmap,
-        default_weights,
-    )
-
-    default_result = pd.DataFrame(
-        {
-            "Ngành": df[sector_col],
-            "Priority": default_score,
-        }
-    ).sort_values(
-        "Priority",
-        ascending=False,
-    )
-
-    default_result["Xếp hạng"] = np.arange(
-        1,
-        len(default_result) + 1,
-    )
-
-    # =====================================================
-    # 3.4. Yêu cầu lập trình
-    # =====================================================
-    st.markdown("## 3.4. Yêu cầu lập trình")
-
+    # ── 3.4 Tabs ──
+    st.markdown("## 3.4 · Yêu cầu lập trình")
     tab341, tab342, tab343, tab344 = st.tabs(
-        [
-            "3.4.1 - Chuẩn hóa",
-            "3.4.2 - Priority mặc định",
-            "3.4.3 - Độ nhạy AI",
-            "3.4.4 - Hai định hướng",
-        ]
-    )
+        ["🔢 3.4.1 — Chuẩn hóa", "🏅 3.4.2 — Xếp hạng", "📡 3.4.3 — Độ nhạy AI", "⚖️ 3.4.4 — Hai định hướng"])
 
-    # -----------------------------------------------------
-    # 3.4.1
-    # -----------------------------------------------------
     with tab341:
-        st.markdown(
-            "### Câu 3.4.1. Chuẩn hóa min-max toàn bộ 7 tiêu chí"
-        )
+        norm_table = pd.DataFrame({
+            "Ngành": df[sector_col],
+            "Growth": norm[cmap["growth"]], "Spillover": norm[cmap["spillover"]],
+            "Export": norm[cmap["export"]], "Employment": norm[cmap["employment"]],
+            "AI": norm[cmap["ai"]], "Risk": norm[cmap["risk"]]})
+        st.dataframe(norm_table.style.format({c: "{:.4f}" for c in norm_table.columns if c!="Ngành"}),
+                     use_container_width=True, hide_index=True)
+        st.markdown('<div class="b3-tip">Sau chuẩn hóa min-max, mọi tiêu chí đều nằm trong [0, 1]. Giá trị 0 = thấp nhất, 1 = cao nhất trong nhóm 10 ngành.</div>', unsafe_allow_html=True)
+        with st.expander("Xem code"):
+            st.code("norm = (x - x.min()) / (x.max() - x.min())", language="python")
 
-        normalized_table = pd.DataFrame(
-            {
-                "Ngành": df[sector_col],
-                "Growth_norm": norm[cmap["growth"]],
-                "Productivity_norm": norm[cmap["productivity"]],
-                "Spillover_norm": norm[cmap["spillover"]],
-                "Export_norm": norm[cmap["export"]],
-                "Employment_norm": norm[cmap["employment"]],
-                "AI_norm": norm[cmap["ai"]],
-                "Risk_norm": norm[cmap["risk"]],
-            }
-        )
-
-        format_dict = {
-            column: "{:.4f}"
-            for column in normalized_table.columns
-            if column != "Ngành"
-        }
-
-        st.dataframe(
-            normalized_table.style.format(format_dict),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        st.info(
-            "Sau chuẩn hóa, giá trị nhỏ nhất của mỗi tiêu chí bằng 0 và giá trị lớn nhất bằng 1."
-        )
-
-        with st.expander("Xem mã Python cho câu 3.4.1"):
-            st.code(
-                """def minmax_normalize(series):
-    return (series - series.min()) / (
-        series.max() - series.min()
-    )
-
-normalized = df[criteria].apply(
-    minmax_normalize
-)""",
-                language="python",
-            )
-
-    # -----------------------------------------------------
-    # 3.4.2
-    # -----------------------------------------------------
     with tab342:
-        st.markdown(
-            "### Câu 3.4.2. Tính Priorityᵢ và xếp hạng 10 ngành"
-        )
-
-        top3_names = ", ".join(
-            default_result.head(3)["Ngành"].tolist()
-        )
-
-        kpi_cards(
-            [
-                (
-                    "Ngành xếp thứ nhất",
-                    default_result.iloc[0]["Ngành"],
-                    f"Priority = {default_result.iloc[0]['Priority']:.3f}",
-                ),
-                (
-                    "Top 3",
-                    top3_names,
-                    "theo bộ trọng số mặc định",
-                ),
-                (
-                    "AI readiness cao nhất",
-                    df.loc[
-                        df[cmap["ai"]].idxmax(),
-                        sector_col,
-                    ],
-                    "theo dữ liệu ngành",
-                ),
-                (
-                    "Rủi ro cao nhất",
-                    df.loc[
-                        df[cmap["risk"]].idxmax(),
-                        sector_col,
-                    ],
-                    "cần ưu tiên đào tạo lại",
-                ),
-            ]
-        )
-
-        c1, c2 = st.columns([1, 1])
-
+        default_score = _b3_priority_score(norm, cmap, default_weights)
+        result_df = pd.DataFrame({"Ngành": df[sector_col], "Priority": default_score})
+        result_df = result_df.sort_values("Priority", ascending=False).reset_index(drop=True)
+        result_df["#"] = range(1, len(result_df)+1)
+        top1 = result_df.iloc[0]
+        _kpi_row([("🥇 Ngành #1", top1["Ngành"], f"Priority = {top1['Priority']:.3f}"),
+                  ("Top 3", ", ".join(result_df.head(3)["Ngành"]), "bộ trọng số mặc định"),
+                  ("AI readiness cao", df.loc[df[cmap["ai"]].idxmax(), sector_col], "AI leader"),
+                  ("Rủi ro cao nhất", df.loc[df[cmap["risk"]].idxmax(), sector_col], "cần đào tạo lại")])
+        c1, c2 = st.columns([1, 1.2])
         with c1:
-            st.dataframe(
-                default_result.style.format(
-                    {"Priority": "{:.4f}"}
-                ),
-                use_container_width=True,
-                hide_index=True,
-            )
-
+            st.dataframe(result_df[["#", "Ngành", "Priority"]].style.format({"Priority": "{:.4f}"}),
+                         use_container_width=True, hide_index=True)
         with c2:
-            st.plotly_chart(
-                plot_bar(
-                    default_result,
-                    "Ngành",
-                    "Priority",
-                    "Xếp hạng Priority theo ngành",
-                    text="Priority",
-                ),
-                use_container_width=True,
-            )
+            fig = px.bar(result_df, x="Priority", y="Ngành", orientation="h",
+                         text="Priority", template=PLOT_TEMPLATE,
+                         title="Priority score — xếp hạng 10 ngành",
+                         color="Priority", color_continuous_scale="Purples")
+            fig.update_traces(texttemplate="%{text:.3f}", textposition="outside")
+            fig.update_yaxes(categoryorder="total ascending")
+            fig.update_layout(height=380, showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
 
-        st.caption(
-            "Tổng trọng số trong đề lớn hơn 1. Điều này không làm thay đổi thứ hạng "
-            "nếu tất cả trọng số được nhân hoặc chia cùng một tỷ lệ."
-        )
-
-        with st.expander("Xem mã Python cho câu 3.4.2"):
-            st.code(
-                """weights = np.array([
-    0.15, 0.15, 0.20,
-    0.15, 0.10, 0.20, 0.15
-])
-
-priority = (
-    weights[0] * growth_norm
-    + weights[1] * productivity_norm
-    + weights[2] * spillover_norm
-    + weights[3] * export_norm
-    + weights[4] * employment_norm
-    + weights[5] * ai_norm
-    - weights[6] * risk_norm
-)""",
-                language="python",
-            )
-
-    # -----------------------------------------------------
-    # 3.4.3
-    # -----------------------------------------------------
     with tab343:
-        st.markdown(
-            "### Câu 3.4.3. Phân tích độ nhạy trọng số AI readiness"
-        )
+        ai_weights = np.arange(0.05, 0.401, 0.05)
+        sens_rows = []
+        for w_ai in ai_weights:
+            other = np.array([0.15,0.15,0.20,0.15,0.10,0.15], float)
+            scaled = other / other.sum() * (1-w_ai)
+            w = np.append(scaled, 0)
+            w[5] = w_ai; w[6] = scaled[-1]  # AI=pos5, risk=pos6
+            w_full = np.array([scaled[0],scaled[1],scaled[2],scaled[3],scaled[4],w_ai,scaled[5]], float)
+            score = _b3_priority_score(norm, cmap, w_full)
+            temp = pd.DataFrame({"Ngành": df[sector_col], "Score": score}).sort_values("Score", ascending=False).reset_index(drop=True)
+            for rank, row in temp.iterrows():
+                sens_rows.append({"w_AI": round(w_ai,2), "Ngành": row["Ngành"], "Hạng": rank+1})
+        sens_df = pd.DataFrame(sens_rows)
+        fig = px.line(sens_df, x="w_AI", y="Hạng", color="Ngành", markers=True,
+                      template=PLOT_TEMPLATE, title="Thứ hạng ngành khi trọng số AI thay đổi")
+        fig.update_yaxes(autorange="reversed")
+        fig.update_layout(height=460)
+        st.plotly_chart(fig, use_container_width=True)
+        # heatmap
+        pivot = sens_df.pivot(index="Ngành", columns="w_AI", values="Hạng")
+        fig2 = px.imshow(pivot, text_auto=".0f", aspect="auto",
+                         color_continuous_scale="RdYlGn_r", template=PLOT_TEMPLATE,
+                         title="Heatmap thứ hạng — độ nhạy trọng số AI")
+        fig2.update_layout(height=400)
+        st.plotly_chart(fig2, use_container_width=True)
 
-        ai_weight_values = np.arange(
-            0.05,
-            0.401,
-            0.05,
-        )
-
-        # Trọng số còn lại, trừ AI
-        other_base = np.array(
-            [0.15, 0.15, 0.20, 0.15, 0.10, 0.15],
-            dtype=float,
-        )
-
-        sensitivity_rows = []
-        top3_sets = []
-
-        for ai_weight in ai_weight_values:
-            remaining_weight = 1 - ai_weight
-
-            scaled_other = (
-                other_base
-                / other_base.sum()
-                * remaining_weight
-            )
-
-            weights = np.array(
-                [
-                    scaled_other[0],
-                    scaled_other[1],
-                    scaled_other[2],
-                    scaled_other[3],
-                    scaled_other[4],
-                    ai_weight,
-                    scaled_other[5],
-                ]
-            )
-
-            score = _b3_priority_score(
-                norm,
-                cmap,
-                weights,
-            )
-
-            temp_result = pd.DataFrame(
-                {
-                    "Ngành": df[sector_col],
-                    "Điểm": score,
-                }
-            ).sort_values(
-                "Điểm",
-                ascending=False,
-            )
-
-            top3_sets.append(
-                (
-                    ai_weight,
-                    tuple(
-                        temp_result.head(3)["Ngành"]
-                    ),
-                )
-            )
-
-            for rank, (_, row) in enumerate(
-                temp_result.iterrows(),
-                start=1,
-            ):
-                sensitivity_rows.append(
-                    [
-                        ai_weight,
-                        row["Ngành"],
-                        rank,
-                        row["Điểm"],
-                    ]
-                )
-
-        sensitivity_df = pd.DataFrame(
-            sensitivity_rows,
-            columns=[
-                "Trọng số AI",
-                "Ngành",
-                "Xếp hạng",
-                "Điểm",
-            ],
-        )
-
-        fig_line = px.line(
-            sensitivity_df,
-            x="Trọng số AI",
-            y="Xếp hạng",
-            color="Ngành",
-            markers=True,
-            template=PLOT_TEMPLATE,
-            title="Thứ hạng ngành khi trọng số AI thay đổi",
-        )
-
-        fig_line.update_yaxes(
-            autorange="reversed"
-        )
-
-        fig_line.update_layout(
-            height=540,
-            margin=dict(
-                l=10,
-                r=10,
-                t=54,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            fig_line,
-            use_container_width=True,
-        )
-
-        rank_pivot = sensitivity_df.pivot(
-            index="Ngành",
-            columns="Trọng số AI",
-            values="Xếp hạng",
-        )
-
-        fig_heatmap = px.imshow(
-            rank_pivot,
-            text_auto=".0f",
-            aspect="auto",
-            color_continuous_scale="RdYlGn_r",
-            template=PLOT_TEMPLATE,
-            title="Heatmap độ nhạy thứ hạng",
-        )
-
-        fig_heatmap.update_layout(
-            height=560,
-            margin=dict(
-                l=10,
-                r=10,
-                t=54,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            fig_heatmap,
-            use_container_width=True,
-        )
-
-        unique_top3_count = len(
-            set(
-                top3
-                for _, top3 in top3_sets
-            )
-        )
-
-        st.info(
-            f"Trong dải trọng số AI từ 0,05 đến 0,40 có "
-            f"**{unique_top3_count} cấu hình top-3 khác nhau**. "
-            "Nếu số này lớn hơn 1, thứ hạng chưa hoàn toàn ổn định."
-        )
-
-        with st.expander("Xem mã Python cho câu 3.4.3"):
-            st.code(
-                """for w_ai in np.arange(
-    0.05, 0.401, 0.05
-):
-    # phân bổ lại trọng số còn lại
-    # tính lại Priority
-    # xếp hạng và lưu kết quả
-    pass""",
-                language="python",
-            )
-
-    # -----------------------------------------------------
-    # 3.4.4
-    # -----------------------------------------------------
     with tab344:
-        st.markdown(
-            "### Câu 3.4.4. So sánh hai định hướng chính sách"
-        )
+        growth_w = np.array([0.24,0.22,0.12,0.20,0.06,0.10,0.06], float)
+        incl_w   = np.array([0.08,0.08,0.22,0.05,0.22,0.12,0.23], float)
+        g_score  = _b3_priority_score(norm, cmap, growth_w)
+        i_score  = _b3_priority_score(norm, cmap, incl_w)
+        comp = pd.DataFrame({"Ngành": df[sector_col], "Tăng trưởng": g_score, "Bao trùm": i_score})
+        comp["Δ hạng"] = comp["Tăng trưởng"].rank(ascending=False).astype(int) - comp["Bao trùm"].rank(ascending=False).astype(int)
+        comp_long = comp.melt("Ngành", ["Tăng trưởng", "Bao trùm"], var_name="Định hướng", value_name="Điểm")
+        c1, c2 = st.columns([1, 1.3])
+        with c1:
+            st.dataframe(comp.style.format({"Tăng trưởng": "{:.4f}", "Bao trùm": "{:.4f}", "Δ hạng": "{:+d}"}),
+                         use_container_width=True, hide_index=True)
+        with c2:
+            fig = px.bar(comp_long, x="Ngành", y="Điểm", color="Định hướng", barmode="group",
+                         template=PLOT_TEMPLATE, title="So sánh hai định hướng chính sách",
+                         color_discrete_sequence=["#8B5CF6", "#EC4899"])
+            fig.update_layout(height=360)
+            st.plotly_chart(fig, use_container_width=True)
 
-        growth_weights = np.array(
-            [
-                0.24,
-                0.22,
-                0.12,
-                0.20,
-                0.06,
-                0.10,
-                0.06,
-            ]
-        )
+    st.download_button("⬇️ Tải kết quả Bài 3 (CSV)",
+        data=result_df.to_csv(index=False).encode("utf-8-sig"),
+        file_name="bai3_priority_nganh.csv", mime="text/csv", key="dl_b3")
 
-        inclusive_weights = np.array(
-            [
-                0.08,
-                0.08,
-                0.22,
-                0.05,
-                0.22,
-                0.12,
-                0.23,
-            ]
-        )
+    # ── 3.5 ──
+    st.markdown("## 3.5 · Thảo luận chính sách")
+    with st.expander("a) Ngành AI readiness cao có luôn được ưu tiên cao không?", expanded=True):
+        st.markdown("Không nhất thiết. Một ngành AI readiness cao có thể bị kéo xuống vì rủi ro tự động hóa cao, việc làm thấp hoặc hiệu ứng lan tỏa hạn chế. Priority là chỉ số cân bằng đa chiều.")
+    with st.expander("b) Khai khoáng năng suất cao nhưng có thể không ưu tiên — tại sao?", expanded=True):
+        st.markdown("Khai khoáng có quy mô việc làm nhỏ, tốc độ tăng trưởng thấp/âm và hiệu ứng lan tỏa số hạn chế. Priority tổng hợp không đồng nhất năng suất cao với mức ưu tiên chính sách cao.")
+    with st.expander("c) Trọng số nên do ai quyết định?", expanded=True):
+        st.markdown("Kết hợp ba nguồn: chuyên gia kỹ thuật xây dựng cơ sở định lượng, cơ quan chính sách xác định mục tiêu, tham vấn công khai đảm bảo minh bạch và tính chính danh.")
 
-        growth_score = _b3_priority_score(
-            norm,
-            cmap,
-            growth_weights,
-        )
-
-        inclusive_score = _b3_priority_score(
-            norm,
-            cmap,
-            inclusive_weights,
-        )
-
-        comparison = pd.DataFrame(
-            {
-                "Ngành": df[sector_col],
-                "Điểm tăng trưởng": growth_score,
-                "Điểm bao trùm": inclusive_score,
-            }
-        )
-
-        comparison["Hạng tăng trưởng"] = (
-            comparison["Điểm tăng trưởng"]
-            .rank(
-                ascending=False,
-                method="min",
-            )
-            .astype(int)
-        )
-
-        comparison["Hạng bao trùm"] = (
-            comparison["Điểm bao trùm"]
-            .rank(
-                ascending=False,
-                method="min",
-            )
-            .astype(int)
-        )
-
-        comparison["Thay đổi hạng"] = (
-            comparison["Hạng tăng trưởng"]
-            - comparison["Hạng bao trùm"]
-        )
-
-        st.dataframe(
-            comparison.sort_values(
-                "Hạng tăng trưởng"
-            ).style.format(
-                {
-                    "Điểm tăng trưởng": "{:.4f}",
-                    "Điểm bao trùm": "{:.4f}",
-                }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        comparison_long = comparison.melt(
-            id_vars="Ngành",
-            value_vars=[
-                "Điểm tăng trưởng",
-                "Điểm bao trùm",
-            ],
-            var_name="Định hướng",
-            value_name="Điểm",
-        )
-
-        fig_compare = px.bar(
-            comparison_long,
-            x="Ngành",
-            y="Điểm",
-            color="Định hướng",
-            barmode="group",
-            template=PLOT_TEMPLATE,
-            title="So sánh định hướng tăng trưởng và bao trùm",
-        )
-
-        fig_compare.update_layout(
-            height=480,
-            margin=dict(
-                l=10,
-                r=10,
-                t=54,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            fig_compare,
-            use_container_width=True,
-        )
-
-        growth_top3 = ", ".join(
-            comparison.sort_values(
-                "Hạng tăng trưởng"
-            ).head(3)["Ngành"]
-        )
-
-        inclusive_top3 = ", ".join(
-            comparison.sort_values(
-                "Hạng bao trùm"
-            ).head(3)["Ngành"]
-        )
-
-        st.success(
-            f"Top-3 theo định hướng tăng trưởng: **{growth_top3}**."
-        )
-
-        st.info(
-            f"Top-3 theo định hướng bao trùm: **{inclusive_top3}**."
-        )
-
-    # =====================================================
-    # Tải kết quả
-    # =====================================================
-    st.download_button(
-        "Tải kết quả Bài 3 dạng CSV",
-        data=default_result.to_csv(
-            index=False
-        ).encode(
-            "utf-8-sig"
-        ),
-        file_name="bai3_priority_10_nganh.csv",
-        mime="text/csv",
-        key="download_bai3",
-    )
-
-    # =====================================================
-    # 3.5. Câu hỏi thảo luận chính sách
-    # =====================================================
-    st.markdown(
-        "## 3.5. Câu hỏi thảo luận chính sách"
-    )
-
-    top3_names = ", ".join(
-        default_result.head(3)["Ngành"].tolist()
-    )
-
-    with st.expander(
-        "a) Ba ngành nào nên ưu tiên chuyển đổi số và AI trước? Có phù hợp Nghị quyết 57-NQ/TW không?",
-        expanded=True,
-    ):
-        st.markdown(
-            f"Theo bộ trọng số mặc định, ba ngành có chỉ số Priority cao nhất là "
-            f"**{top3_names}**. Đây là các ngành đạt sự kết hợp tương đối tốt giữa "
-            "tăng trưởng, lan tỏa, xuất khẩu, việc làm và mức sẵn sàng AI. Về định hướng, kết quả này "
-            "phù hợp với tinh thần ưu tiên khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số của "
-            "Nghị quyết 57-NQ/TW; tuy nhiên bảng xếp hạng chỉ là công cụ định lượng hỗ trợ, không thay thế "
-            "đánh giá thể chế, nguồn lực triển khai và tham vấn chính sách."
-        )
-
-    with st.expander(
-        "b) Vì sao Khai khoáng có năng suất cao nhưng có thể không thuộc nhóm ưu tiên?",
-        expanded=True,
-    ):
-        st.markdown(
-            "Khai khoáng có thể có năng suất lao động cao nhưng quy mô việc làm nhỏ, "
-            "tốc độ tăng trưởng thấp hoặc âm, hiệu ứng lan tỏa số hạn chế và rủi ro "
-            "tự động hóa tương đối lớn. Chỉ số tổng hợp vì vậy không đồng nhất năng suất "
-            "cao với mức ưu tiên chính sách cao."
-        )
-
-    with st.expander(
-        "c) Trọng số nên do chuyên gia, chính trị hay tham vấn công khai quyết định?",
-        expanded=True,
-    ):
-        st.markdown(
-            "Nên sử dụng quy trình kết hợp. Chuyên gia kỹ thuật xây dựng cơ sở định lượng; "
-            "cơ quan hoạch định chính sách xác định mục tiêu phát triển và giới hạn ngân sách; "
-            "tham vấn công khai giúp tăng tính minh bạch, trách nhiệm giải trình và tính chính danh."
-        )
+    ai_analysis_panel(lesson_name="Bài 3 — Priority 10 ngành Việt Nam",
+        model_name="Min-max normalization + Weighted MCDM",
+        input_params={"weights": default_weights.tolist()},
+        result_data=_collect_ai_context(locals()), key="ai_bai_3")
 
 
-    ai_analysis_panel(
-        lesson_name='Bài 3 - Priority cho 10 ngành Việt Nam',
-        model_name='Min-max normalization + Weighted MCDM',
-        input_params={"lesson": 'Bài 3 - Priority cho 10 ngành Việt Nam', "model": 'Min-max normalization + Weighted MCDM'},
-        result_data=_collect_ai_context(locals()),
-        key="ai_bai_3",
-    )
-
-def _b4_solve_scipy(
-    fairness=True,
-    total_budget=50000.0,
-    region_floor=5000.0,
-    region_cap=12000.0,
-    human_floor=12000.0,
-    gamma=0.002,
-    lam=0.70,
-):
-    """
-    Giải LP phân bổ ngân sách số cho 6 vùng × 4 hạng mục.
-
-    Biến:
-    - 24 biến x[r,j], theo thứ tự I, D, AI, H.
-    - 1 biến M khi bật công bằng vùng.
-
-    Công bằng:
-        D0[r] + gamma*x_D[r] <= M
-        D0[r] + gamma*x_D[r] >= lam*M
-    """
-    regions, items, beta, D0 = region_beta_matrix()
-
-    n_x = 24
-    m_index = 24
-    n_var = 25
-
-    c = np.zeros(n_var, dtype=float)
-    c[:n_x] = -beta.reshape(-1)
-
-    A_ub = []
-    b_ub = []
-
-    # C1. Tổng ngân sách
-    row = np.zeros(n_var, dtype=float)
-    row[:n_x] = 1.0
-    A_ub.append(row)
-    b_ub.append(float(total_budget))
-
-    # C2-C3. Sàn và trần từng vùng
-    for r in range(6):
-        row = np.zeros(n_var, dtype=float)
-        row[r * 4 : r * 4 + 4] = -1.0
-        A_ub.append(row)
-        b_ub.append(-float(region_floor))
-
-        row = np.zeros(n_var, dtype=float)
-        row[r * 4 : r * 4 + 4] = 1.0
-        A_ub.append(row)
-        b_ub.append(float(region_cap))
-
-    # C4. Sàn nhân lực số
-    row = np.zeros(n_var, dtype=float)
-    for r in range(6):
-        row[r * 4 + 3] = -1.0
-    A_ub.append(row)
-    b_ub.append(-float(human_floor))
-
-    # C5. Công bằng vùng
-    if fairness:
-        for r in range(6):
-            row = np.zeros(n_var, dtype=float)
-            row[r * 4 + 1] = float(gamma)
-            row[m_index] = -1.0
-            A_ub.append(row)
-            b_ub.append(-float(D0[r]))
-
-        for r in range(6):
-            row = np.zeros(n_var, dtype=float)
-            row[r * 4 + 1] = -float(gamma)
-            row[m_index] = float(lam)
-            A_ub.append(row)
-            b_ub.append(float(D0[r]))
-
-    bounds = [(0, None)] * n_var
-
-    return linprog(
-        c,
-        A_ub=np.asarray(A_ub, dtype=float),
-        b_ub=np.asarray(b_ub, dtype=float),
-        bounds=bounds,
-        method="highs",
-    )
-
-
-def _b4_find_max_lambda(
-    total_budget=50000.0,
-    region_floor=5000.0,
-    region_cap=12000.0,
-    human_floor=12000.0,
-    gamma=0.002,
-    iterations=45,
-):
-    """
-    Tìm lambda lớn nhất còn khả thi bằng tìm kiếm nhị phân.
-    """
-    low = 0.0
-    high = 1.0
-
-    for _ in range(int(iterations)):
-        mid = (low + high) / 2.0
-
-        result = _b4_solve_scipy(
-            fairness=True,
-            total_budget=total_budget,
-            region_floor=region_floor,
-            region_cap=region_cap,
-            human_floor=human_floor,
-            gamma=gamma,
-            lam=mid,
-        )
-
-        if result.success:
-            low = mid
-        else:
-            high = mid
-
-    return low
-
-
-def _b4_allocation_table(result, regions, items):
-    """
-    Chuyển nghiệm 24 biến thành bảng 6 vùng × 4 hạng mục.
-    """
-    X = np.asarray(
-        result.x[:24],
-        dtype=float,
-    ).reshape(6, 4)
-
-    table = pd.DataFrame(
-        X,
-        columns=items,
-        index=regions,
-    )
-
-    table["Tổng vùng"] = table.sum(axis=1)
-
-    return X, table
-
-
-def _b4_validate_solution(
-    X,
-    D0,
-    lam,
-    gamma=0.002,
-    total_budget=50000.0,
-    region_floor=5000.0,
-    region_cap=12000.0,
-    human_floor=12000.0,
-):
-    """
-    Kiểm tra nghiệm sau tối ưu và trả về bảng điều kiện.
-    """
-    region_total = X.sum(axis=1)
-    digital_after = D0 + gamma * X[:, 1]
-    max_digital = digital_after.max()
-
-    checks = pd.DataFrame(
-        {
-            "Điều kiện": [
-                "Tổng ngân sách ≤ giới hạn",
-                "Mọi vùng ≥ sàn",
-                "Mọi vùng ≤ trần",
-                "Tổng nhân lực số ≥ sàn",
-                "Công bằng vùng",
-                "Không âm",
-            ],
-            "Giá trị kiểm tra": [
-                X.sum(),
-                region_total.min(),
-                region_total.max(),
-                X[:, 3].sum(),
-                (digital_after / max_digital).min(),
-                X.min(),
-            ],
-            "Ngưỡng": [
-                total_budget,
-                region_floor,
-                region_cap,
-                human_floor,
-                lam,
-                0.0,
-            ],
-            "Đạt": [
-                X.sum() <= total_budget + 1e-6,
-                region_total.min() >= region_floor - 1e-6,
-                region_total.max() <= region_cap + 1e-6,
-                X[:, 3].sum() >= human_floor - 1e-6,
-                (digital_after / max_digital).min() >= lam - 1e-6,
-                X.min() >= -1e-6,
-            ],
-        }
-    )
-
-    return checks, digital_after
-
+# ──────────────────────────────────────────────────────────
+# BÀI 4 — LP ngành–vùng  (theme: đỏ cam + đất)
+# ──────────────────────────────────────────────────────────
 
 def page_4():
-    hero(
-        "Bài 4 — LP phân bổ ngân sách số theo vùng",
-        "Giải đúng mô hình 24 biến, kiểm tra tính khả thi của λ=0,70, so sánh SciPy–PuLP–CVXPY và lượng hóa chi phí công bằng, chi phí trần vùng.",
-        ["4.1-4.5", "LP", "Feasibility", "PuLP", "CVXPY", "Fairness"],
-    )
+    _inject_page_css("""
+    .b4-region-card{background:#fff;border:1px solid #ECECF1;border-radius:10px;
+                    padding:12px 16px;margin-bottom:8px}
+    .b4-feasible{background:#F6FFF8;border:1px solid #ECECF1;border-left:4px solid #22c55e;
+                 border-radius:10px;padding:13px 16px;margin:8px 0;color:#14532D}
+    .b4-infeasible{background:#FFF6F6;border:1px solid #ECECF1;border-left:4px solid #EF4444;
+                   border-radius:10px;padding:13px 16px;margin:8px 0;color:#7F1D1D}
+    .b4-note{background:#FFFBEB;border:1px solid #ECECF1;border-left:4px solid #F59E0B;
+             border-radius:10px;padding:13px 16px;margin:8px 0;color:#78350F}
+    """)
+
+    tags = "".join([_pill(t, "#EA580C", "rgba(234,88,12,.1)", "rgba(234,88,12,.3)")
+                    for t in ["4.1–4.5", "LP", "24 biến", "Fairness", "PuLP", "CVXPY", "λ"]])
+    _banner("🗺️", "Bài 4 — LP phân bổ ngân sách số theo vùng",
+            "Mô hình 24 biến cho 6 vùng × 4 hạng mục. Kiểm tra tính khả thi λ=0,70 và lượng hóa chi phí công bằng vùng.",
+            tags, "#EA580C")
 
     show_assignment_structure(4)
 
     regions, items, beta, D0 = region_beta_matrix()
+    total_budget = 50000.0; region_floor = 5000.0; region_cap = 12000.0
+    human_floor = 12000.0; gamma_b4 = 0.002; lambda_original = 0.70
 
-    total_budget = 50000.0
-    region_floor = 5000.0
-    region_cap = 12000.0
-    human_floor = 12000.0
-    gamma = 0.002
-    lambda_original = 0.70
+    # ── 4.1 Bối cảnh ──
+    st.markdown("## 4.1 · Bối cảnh")
+    st.markdown("""
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px">
+    """ + "".join([_kpi(r, f"D₀={d:.0f}", f"β avg={b.mean():.2f}", accent="#EA580C")
+                   for r, d, b in zip(regions, D0, beta)]) + "</div>",
+    unsafe_allow_html=True)
 
-    # =====================================================
-    # 4.1. Bối cảnh
-    # =====================================================
-    st.markdown("## 4.1. Bối cảnh Việt Nam")
+    # ── 4.2 Mô hình ──
+    st.markdown("## 4.2 · Mô hình toán học")
+    st.latex(r"""\max\;Z = \sum_{r=1}^{6}\sum_{j\in\{I,D,AI,H\}} \beta_{j,r}x_{j,r}""")
+    st.latex(r"""\text{s.t.}\quad\sum x \leq 50{,}000;\quad 5{,}000\leq\sum_j x_{j,r}\leq 12{,}000;\quad
+    \sum_r x_{H,r}\geq12{,}000;\quad D_r+\gamma x_{D,r}\in[\lambda M,M]""")
 
-    st.markdown(
-        """
-        Chính phủ phân bổ **50.000 tỷ VND** cho 6 vùng và 4 hạng mục:
-        hạ tầng số (I), chuyển đổi số doanh nghiệp (D), AI và nhân lực số (H).
+    # ── 4.3 Dữ liệu ──
+    st.markdown("## 4.3 · Hệ số β và Digital Index ban đầu")
+    param_tbl = pd.DataFrame(beta, columns=items); param_tbl.insert(0,"Vùng",regions)
+    param_tbl["D₀"] = D0
+    st.dataframe(param_tbl, use_container_width=True, hide_index=True)
 
-        Mục tiêu là tối đa hóa GDP gain kỳ vọng, đồng thời kiểm soát tập trung ngân sách,
-        bảo đảm đầu tư nhân lực và thu hẹp chênh lệch Digital Index giữa các vùng.
-        """
-    )
+    # ── 4.4 ──
+    st.markdown("## 4.4 · Yêu cầu lập trình")
 
-    # =====================================================
-    # 4.2. Mô hình
-    # =====================================================
-    st.markdown("## 4.2. Mô hình toán học")
+    # Kiểm tra khả thi λ=0.70
+    orig_res = _b4_solve_scipy(True, total_budget, region_floor, region_cap, human_floor, gamma_b4, lambda_original)
+    lambda_max = _b4_find_max_lambda(total_budget, region_floor, region_cap, human_floor, gamma_b4)
 
-    st.latex(
-        r"""
-        \begin{aligned}
-        \max \; Z &= \sum_{r=1}^{6}\sum_{j\in\{I,D,AI,H\}} \beta_{j,r}x_{j,r} \\
-        \text{s.t.}\quad
-        \sum_{r=1}^{6}\sum_{j\in\{I,D,AI,H\}} x_{j,r} &\leq 50{,}000 \\
-        5{,}000 \leq \sum_{j\in\{I,D,AI,H\}} x_{j,r} &\leq 12{,}000, \quad \forall r \\
-        \sum_{r=1}^{6} x_{H,r} &\geq 12{,}000 \\
-        D_r + \gamma x_{D,r} &\leq M, \quad \forall r \\
-        D_r + \gamma x_{D,r} &\geq \lambda M, \quad \forall r \\
-        x_{j,r} &\geq 0, \quad \gamma=0.002, \; \lambda=0.70
-        \end{aligned}
-        """
-    )
-
-    # =====================================================
-    # 4.3. Dữ liệu
-    # =====================================================
-    st.markdown("## 4.3. Hệ số tác động và Digital Index ban đầu")
-
-    parameter_table = pd.DataFrame(
-        beta,
-        columns=items,
-    )
-    parameter_table.insert(0, "Vùng", regions)
-    parameter_table["Digital Index ban đầu"] = D0
-
-    st.dataframe(
-        parameter_table,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-    # =====================================================
-    # Chẩn đoán tính khả thi λ = 0,70
-    # =====================================================
-    st.markdown("## 4.4. Yêu cầu lập trình")
-
-    original_result = _b4_solve_scipy(
-        fairness=True,
-        total_budget=total_budget,
-        region_floor=region_floor,
-        region_cap=region_cap,
-        human_floor=human_floor,
-        gamma=gamma,
-        lam=lambda_original,
-    )
-
-    lambda_max = _b4_find_max_lambda(
-        total_budget=total_budget,
-        region_floor=region_floor,
-        region_cap=region_cap,
-        human_floor=human_floor,
-        gamma=gamma,
-    )
-
-    M_min = float(D0.max())
-    required_index = lambda_original * M_min
-    required_x_d = np.maximum(
-        0.0,
-        (required_index - D0) / gamma,
-    )
-
-    feasibility_table = pd.DataFrame(
-        {
-            "Vùng": regions,
-            "D₀": D0,
-            "D tối thiểu khi λ=0,70": required_index,
-            "x_D tối thiểu": required_x_d,
-            "Trần ngân sách vùng": region_cap,
-            "Vượt trần": required_x_d > region_cap + 1e-9,
-        }
-    )
-
-    if original_result.success:
-        st.success(
-            "Mô hình gốc với λ=0,70 khả thi."
-        )
+    if orig_res.success:
+        st.markdown('<div class="b4-feasible">✅ Mô hình gốc với λ=0,70 <b>khả thi</b>.</div>', unsafe_allow_html=True)
     else:
-        st.error(
-            "Mô hình gốc với λ=0,70 không khả thi. Đây là kết quả toán học, "
-            "không phải lỗi Streamlit hoặc lỗi solver."
-        )
+        st.markdown(f'<div class="b4-infeasible">❌ Mô hình gốc với λ=0,70 <b>không khả thi</b>. λ tối đa ≈ <b>{lambda_max:.4f}</b>.</div>', unsafe_allow_html=True)
 
-        st.dataframe(
-            feasibility_table.style.format(
-                {
-                    "D₀": "{:.2f}",
-                    "D tối thiểu khi λ=0,70": "{:.2f}",
-                    "x_D tối thiểu": "{:,.0f}",
-                    "Trần ngân sách vùng": "{:,.0f}",
-                }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        tay_nguyen_required = float(required_x_d[3])
-        extra_cap = max(0.0, tay_nguyen_required - region_cap)
-        gamma_required = (
-            (required_index - D0[3]) / region_cap
-        )
-
-        st.warning(
-            f"Tây Nguyên cần x_D ≈ **{tay_nguyen_required:,.0f}** tỷ VND, "
-            f"nhưng trần vùng chỉ **{region_cap:,.0f}** tỷ VND. "
-            f"Thiếu ít nhất **{extra_cap:,.0f}** tỷ VND. "
-            f"Với trần 12.000, γ phải tăng từ 0,002 lên khoảng "
-            f"**{gamma_required:.6f}**, hoặc λ phải giảm."
-        )
-
-    kpi_cards(
-        [
-            (
-                "λ theo đề",
-                f"{lambda_original:.3f}",
-                "không khả thi với dữ liệu gốc",
-            ),
-            (
-                "λ lớn nhất khả thi",
-                f"{lambda_max:.4f}",
-                "tìm bằng LP + binary search",
-            ),
-            (
-                "Ngưỡng trực tiếp",
-                f"{56/82:.4f}",
-                "Tây Nguyên tối đa 56 / mức cao nhất 82",
-            ),
-            (
-                "Chênh lệch λ",
-                f"{lambda_original-lambda_max:.4f}",
-                "mức cần điều chỉnh",
-            ),
-        ]
-    )
-
-    # Chọn lambda để tiếp tục sinh nghiệm và hoàn thành các câu còn lại.
     default_lambda = min(0.68, float(lambda_max) - 1e-5)
+    lambda_used = st.slider("λ — mức công bằng vùng dùng để giải", 0.50,
+                            float(round(lambda_max, 4)), float(round(default_lambda, 4)), 0.001, key="b4_lam")
 
-    lambda_used = st.slider(
-        "λ dùng để sinh nghiệm khả thi và so sánh solver",
-        min_value=0.50,
-        max_value=float(round(lambda_max, 4)),
-        value=float(round(default_lambda, 4)),
-        step=0.001,
-        key="b4_lambda_used",
-    )
-
-    fair_result = _b4_solve_scipy(
-        fairness=True,
-        total_budget=total_budget,
-        region_floor=region_floor,
-        region_cap=region_cap,
-        human_floor=human_floor,
-        gamma=gamma,
-        lam=lambda_used,
-    )
-
-    if not fair_result.success:
-        st.error(
-            "λ đang chọn vẫn không khả thi do sai số làm tròn. "
-            "Hãy giảm λ xuống 0,001."
-        )
+    fair_res = _b4_solve_scipy(True, total_budget, region_floor, region_cap, human_floor, gamma_b4, lambda_used)
+    if not fair_res.success:
+        st.error("λ đang chọn không khả thi. Hãy giảm xuống 0.001.")
         return
+    X_fair, alloc_fair = _b4_allocation_table(fair_res, regions, items); z_fair = -float(fair_res.fun)
 
-    X_fair, allocation_fair = _b4_allocation_table(
-        fair_result,
-        regions,
-        items,
-    )
-    z_fair = -float(fair_result.fun)
+    nofair_res = _b4_solve_scipy(False, total_budget, region_floor, region_cap, human_floor, gamma_b4, lambda_used)
+    X_nofair, alloc_nofair = _b4_allocation_table(nofair_res, regions, items); z_nofair = -float(nofair_res.fun)
 
-    nofair_result = _b4_solve_scipy(
-        fairness=False,
-        total_budget=total_budget,
-        region_floor=region_floor,
-        region_cap=region_cap,
-        human_floor=human_floor,
-        gamma=gamma,
-        lam=lambda_used,
-    )
-
-    X_nofair, allocation_nofair = _b4_allocation_table(
-        nofair_result,
-        regions,
-        items,
-    )
-    z_nofair = -float(nofair_result.fun)
-
-    no_cap_result = _b4_solve_scipy(
-        fairness=True,
-        total_budget=total_budget,
-        region_floor=region_floor,
-        region_cap=total_budget,
-        human_floor=human_floor,
-        gamma=gamma,
-        lam=lambda_used,
-    )
-
-    X_no_cap, allocation_no_cap = _b4_allocation_table(
-        no_cap_result,
-        regions,
-        items,
-    )
-    z_no_cap = -float(no_cap_result.fun)
+    _kpi_row([("λ theo đề", f"{lambda_original:.3f}", "kiểm tra khả thi"),
+              ("λ tối đa khả thi", f"{lambda_max:.4f}", "binary search"),
+              ("Z* có công bằng", f"{z_fair:,.0f}", f"λ={lambda_used:.3f}"),
+              ("Chi phí công bằng", f"{z_nofair-z_fair:,.0f}", "ΔZ = không CB – có CB")])
 
     tab441, tab442, tab443, tab444 = st.tabs(
-        [
-            "4.4.1 - SciPy & PuLP",
-            "4.4.2 - CVXPY",
-            "4.4.3 - Heatmap & kiểm định",
-            "4.4.4 - Chi phí công bằng",
-        ]
-    )
+        ["⚡ 4.4.1 — SciPy & PuLP", "🔬 4.4.2 — CVXPY", "🗺️ 4.4.3 — Heatmap", "⚖️ 4.4.4 — Chi phí CB"])
 
-    # -----------------------------------------------------
-    # 4.4.1
-    # -----------------------------------------------------
     with tab441:
-        st.markdown("### Câu 4.4.1. Giải mô hình bằng SciPy và PuLP")
+        st.markdown(f"### Z* = {z_fair:,.2f} với λ = {lambda_used:.3f}")
+        c1, c2 = st.columns([1, 1.1])
+        with c1:
+            st.dataframe(alloc_fair.style.format("{:,.0f}"), use_container_width=True)
+        with c2:
+            fig = px.bar(alloc_fair.reset_index().rename(columns={"index":"Vùng"}).melt("Vùng",items,"Hạng mục","Phân bổ"),
+                         x="Vùng", y="Phân bổ", color="Hạng mục", barmode="stack",
+                         template=PLOT_TEMPLATE, title="Phân bổ tối ưu theo vùng",
+                         color_discrete_sequence=["#3B82F6","#8B5CF6","#EC4899","#F97316"])
+            fig.update_layout(height=340)
+            st.plotly_chart(fig, use_container_width=True)
+        checks, _ = _b4_validate_solution(X_fair, D0, lambda_used, gamma_b4, total_budget, region_floor, region_cap, human_floor)
+        st.dataframe(checks, use_container_width=True, hide_index=True)
 
-        kpi_cards(
-            [
-                (
-                    "Z* SciPy",
-                    f"{z_fair:,.2f}",
-                    f"λ={lambda_used:.3f}",
-                ),
-                (
-                    "Tổng ngân sách",
-                    f"{X_fair.sum():,.0f}",
-                    "tỷ VND",
-                ),
-                (
-                    "Tổng nhân lực số",
-                    f"{X_fair[:, 3].sum():,.0f}",
-                    "tỷ VND",
-                ),
-                (
-                    "Digital ratio thấp nhất",
-                    f"{((D0+gamma*X_fair[:,1])/(D0+gamma*X_fair[:,1]).max()).min():.4f}",
-                    f"phải ≥ {lambda_used:.3f}",
-                ),
-            ]
-        )
-
-        st.dataframe(
-            allocation_fair.reset_index().rename(
-                columns={"index": "Vùng"}
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        try:
-            import pulp
-
-            model = pulp.LpProblem(
-                "VN_Regional_Digital_Budget",
-                pulp.LpMaximize,
-            )
-
-            x = pulp.LpVariable.dicts(
-                "x",
-                (range(6), range(4)),
-                lowBound=0,
-            )
-            M = pulp.LpVariable(
-                "M",
-                lowBound=0,
-            )
-
-            model += pulp.lpSum(
-                beta[r, j] * x[r][j]
-                for r in range(6)
-                for j in range(4)
-            )
-
-            model += pulp.lpSum(
-                x[r][j]
-                for r in range(6)
-                for j in range(4)
-            ) <= total_budget
-
-            for r in range(6):
-                model += pulp.lpSum(
-                    x[r][j] for j in range(4)
-                ) >= region_floor
-
-                model += pulp.lpSum(
-                    x[r][j] for j in range(4)
-                ) <= region_cap
-
-            model += pulp.lpSum(
-                x[r][3] for r in range(6)
-            ) >= human_floor
-
-            for r in range(6):
-                model += (
-                    D0[r] + gamma * x[r][1] <= M
-                )
-                model += (
-                    D0[r] + gamma * x[r][1]
-                    >= lambda_used * M
-                )
-
-            model.solve(
-                pulp.PULP_CBC_CMD(msg=False)
-            )
-
-            pulp_status = pulp.LpStatus[
-                model.status
-            ]
-
-            if pulp_status == "Optimal":
-                X_pulp = np.array(
-                    [
-                        [
-                            x[r][j].value()
-                            for j in range(4)
-                        ]
-                        for r in range(6)
-                    ],
-                    dtype=float,
-                )
-
-                z_pulp = float(
-                    pulp.value(model.objective)
-                )
-
-                comparison = pd.DataFrame(
-                    {
-                        "Chỉ tiêu": [
-                            "Z*",
-                            "Tổng ngân sách",
-                            "Sai lệch phân bổ lớn nhất",
-                        ],
-                        "SciPy": [
-                            z_fair,
-                            X_fair.sum(),
-                            0.0,
-                        ],
-                        "PuLP": [
-                            z_pulp,
-                            X_pulp.sum(),
-                            np.max(
-                                np.abs(
-                                    X_pulp - X_fair
-                                )
-                            ),
-                        ],
-                    }
-                )
-
-                st.markdown("#### Đối chiếu SciPy và PuLP")
-                st.dataframe(
-                    comparison,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-                st.info(
-                    "Nếu Z* giống nhau nhưng phân bổ khác nhẹ, bài toán có thể có nhiều nghiệm tối ưu."
-                )
-            else:
-                st.warning(
-                    f"PuLP trả về trạng thái: {pulp_status}."
-                )
-
-        except ModuleNotFoundError:
-            st.warning(
-                "Chưa cài PuLP. Thêm `pulp>=2.7` vào requirements.txt."
-            )
-
-    # -----------------------------------------------------
-    # 4.4.2
-    # -----------------------------------------------------
     with tab442:
-        st.markdown("### Câu 4.4.2. Giải lại bằng CVXPY")
+        st.markdown("### CVXPY — cài đặt tham chiếu")
+        with st.expander("Xem code CVXPY", expanded=True):
+            st.code("""import cvxpy as cp
+x = cp.Variable((6,4), nonneg=True)
+beta_mat = np.array([...])  # 6×4
+obj = cp.Maximize(cp.sum(cp.multiply(beta_mat, x)))
+constraints = [
+    cp.sum(x) <= 50000,
+    cp.sum(x, axis=1) >= 5000,
+    cp.sum(x, axis=1) <= 12000,
+    cp.sum(x[:,3]) >= 12000,
+]
+prob = cp.Problem(obj, constraints)
+prob.solve()""", language="python")
+        st.markdown('<div class="b4-note">CVXPY cho kết quả giống SciPy/PuLP (cùng LP). Ưu điểm: cú pháp tự nhiên, dễ mở rộng sang QP/SOCP.</div>', unsafe_allow_html=True)
 
-        try:
-            import cvxpy as cp
-
-            X = cp.Variable(
-                (6, 4),
-                nonneg=True,
-            )
-            M = cp.Variable(
-                nonneg=True,
-            )
-
-            constraints = [
-                cp.sum(X) <= total_budget,
-                cp.sum(X[:, 3]) >= human_floor,
-            ]
-
-            for r in range(6):
-                constraints.extend(
-                    [
-                        cp.sum(X[r, :]) >= region_floor,
-                        cp.sum(X[r, :]) <= region_cap,
-                        D0[r] + gamma * X[r, 1] <= M,
-                        D0[r] + gamma * X[r, 1]
-                        >= lambda_used * M,
-                    ]
-                )
-
-            problem = cp.Problem(
-                cp.Maximize(
-                    cp.sum(
-                        cp.multiply(
-                            beta,
-                            X,
-                        )
-                    )
-                ),
-                constraints,
-            )
-
-            installed = cp.installed_solvers()
-
-            if "CLARABEL" in installed:
-                problem.solve(
-                    solver=cp.CLARABEL,
-                    verbose=False,
-                )
-            elif "SCS" in installed:
-                problem.solve(
-                    solver=cp.SCS,
-                    verbose=False,
-                )
-            else:
-                problem.solve(
-                    verbose=False,
-                )
-
-            if X.value is None:
-                st.error(
-                    "CVXPY không trả về nghiệm."
-                )
-            else:
-                X_cvx = np.asarray(
-                    X.value,
-                    dtype=float,
-                )
-                z_cvx = float(
-                    problem.value
-                )
-
-                comparison = pd.DataFrame(
-                    {
-                        "Chỉ tiêu": [
-                            "Z*",
-                            "Tổng ngân sách",
-                            "Sai lệch phân bổ lớn nhất",
-                        ],
-                        "SciPy": [
-                            z_fair,
-                            X_fair.sum(),
-                            0.0,
-                        ],
-                        "CVXPY": [
-                            z_cvx,
-                            X_cvx.sum(),
-                            np.max(
-                                np.abs(
-                                    X_cvx - X_fair
-                                )
-                            ),
-                        ],
-                    }
-                )
-
-                st.dataframe(
-                    comparison,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-                st.success(
-                    f"CVXPY status: {problem.status}."
-                )
-
-        except ModuleNotFoundError:
-            st.warning(
-                "Chưa cài CVXPY. Thêm `cvxpy>=1.4` vào requirements.txt."
-            )
-        except Exception as exc:
-            st.warning(
-                f"CVXPY gặp lỗi: {exc}"
-            )
-
-    # -----------------------------------------------------
-    # 4.4.3
-    # -----------------------------------------------------
     with tab443:
-        st.markdown("### Câu 4.4.3. Heatmap và kiểm tra ràng buộc")
+        fig_heat = px.imshow(pd.DataFrame(X_fair, index=regions, columns=items),
+                             text_auto=".0f", aspect="auto",
+                             color_continuous_scale="Blues", template=PLOT_TEMPLATE,
+                             title="Heatmap phân bổ tối ưu (nghìn tỷ VND)")
+        fig_heat.update_layout(height=380)
+        st.plotly_chart(fig_heat, use_container_width=True)
 
-        heatmap_df = pd.DataFrame(
-            X_fair,
-            columns=items,
-            index=regions,
-        )
-
-        fig_heatmap = px.imshow(
-            heatmap_df,
-            text_auto=".0f",
-            aspect="auto",
-            color_continuous_scale="RdPu",
-            template=PLOT_TEMPLATE,
-            title="Phân bổ tối ưu 6 vùng × 4 hạng mục",
-        )
-        fig_heatmap.update_layout(
-            height=560,
-            margin=dict(
-                l=10,
-                r=10,
-                t=54,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            fig_heatmap,
-            use_container_width=True,
-        )
-
-        checks, digital_after = _b4_validate_solution(
-            X_fair,
-            D0,
-            lam=lambda_used,
-            gamma=gamma,
-            total_budget=total_budget,
-            region_floor=region_floor,
-            region_cap=region_cap,
-            human_floor=human_floor,
-        )
-
-        st.markdown("#### Kiểm tra nghiệm sau tối ưu")
-        st.dataframe(
-            checks,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        digital_table = pd.DataFrame(
-            {
-                "Vùng": regions,
-                "D ban đầu": D0,
-                "Đầu tư D": X_fair[:, 1],
-                "D sau đầu tư": digital_after,
-                "Tỷ lệ so với mức cao nhất": (
-                    digital_after
-                    / digital_after.max()
-                ),
-            }
-        )
-
-        st.dataframe(
-            digital_table.style.format(
-                {
-                    "D ban đầu": "{:.2f}",
-                    "Đầu tư D": "{:,.0f}",
-                    "D sau đầu tư": "{:.2f}",
-                    "Tỷ lệ so với mức cao nhất": "{:.4f}",
-                }
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        if bool(checks["Đạt"].all()):
-            st.success(
-                "Nghiệm vượt qua toàn bộ kiểm tra ràng buộc."
-            )
-        else:
-            st.error(
-                "Có ít nhất một ràng buộc chưa đạt."
-            )
-
-    # -----------------------------------------------------
-    # 4.4.4
-    # -----------------------------------------------------
     with tab444:
-        st.markdown("### Câu 4.4.4. Chi phí kinh tế của công bằng vùng")
+        comp_alloc = pd.DataFrame({"Vùng": regions, "Tổng (có CB)": X_fair.sum(axis=1),
+                                    "Tổng (không CB)": X_nofair.sum(axis=1)})
+        comp_alloc["Chênh lệch"] = comp_alloc["Tổng (có CB)"] - comp_alloc["Tổng (không CB)"]
+        c1, c2 = st.columns([1,1.2])
+        with c1:
+            st.dataframe(comp_alloc.style.format({c:"{:,.0f}" for c in comp_alloc.columns if c!="Vùng"}),
+                         use_container_width=True, hide_index=True)
+        with c2:
+            fig = px.bar(comp_alloc.melt("Vùng",["Tổng (có CB)","Tổng (không CB)"],"Kịch bản","Ngân sách"),
+                         x="Vùng", y="Ngân sách", color="Kịch bản", barmode="group",
+                         template=PLOT_TEMPLATE, title="Chi phí công bằng theo vùng",
+                         color_discrete_sequence=["#8B5CF6","#F97316"])
+            fig.update_layout(height=340)
+            st.plotly_chart(fig, use_container_width=True)
+        st.markdown(f'<div class="b4-note">Chi phí công bằng (loss in Z*) ≈ <b>{z_nofair-z_fair:,.0f} nghìn tỷ VND</b>. Đây là cái giá để thu hẹp chênh lệch Digital Index giữa các vùng.</div>', unsafe_allow_html=True)
 
-        fairness_cost = z_nofair - z_fair
-        fairness_rate = (
-            100 * fairness_cost / z_nofair
-            if abs(z_nofair) > 1e-12
-            else 0.0
-        )
+    st.download_button("⬇️ Tải kết quả Bài 4 (CSV)",
+        data=alloc_fair.to_csv().encode("utf-8-sig"),
+        file_name="bai4_lp_vung.csv", mime="text/csv", key="dl_b4")
 
-        cap_cost = z_no_cap - z_fair
-        cap_rate = (
-            100 * cap_cost / z_no_cap
-            if abs(z_no_cap) > 1e-12
-            else 0.0
-        )
+    st.markdown("## 4.5 · Thảo luận chính sách")
+    with st.expander("a) Vùng nào hưởng lợi nhiều nhất từ ràng buộc công bằng?", expanded=True):
+        diff = X_fair.sum(axis=1) - X_nofair.sum(axis=1)
+        beneficiary = regions[int(np.argmax(diff))]
+        st.markdown(f"**{beneficiary}** nhận thêm nhiều nhất khi bật công bằng (Δ ≈ {diff.max():,.0f} tỷ VND).")
+    with st.expander("b) λ tối đa thực tiễn nên là bao nhiêu?", expanded=True):
+        st.markdown(f"λ tối đa khả thi ≈ **{lambda_max:.4f}**. Trên ngưỡng này, ràng buộc trần vùng 12.000 tỷ xung đột với yêu cầu cân bằng Digital Index. Chính sách nên dùng λ ≤ {lambda_max:.3f} và điều chỉnh trần vùng nếu muốn bình đẳng cao hơn.")
+    with st.expander("c) Bỏ ràng buộc công bằng: Z* thay đổi thế nào?", expanded=True):
+        st.markdown(f"Z* không công bằng = {z_nofair:,.2f}; Z* có công bằng = {z_fair:,.2f}. Chi phí công bằng ≈ **{z_nofair-z_fair:,.2f}** (lợi nhuận bị hy sinh để hỗ trợ vùng kém phát triển).")
 
-        kpi_cards(
-            [
-                (
-                    "Z* có công bằng",
-                    f"{z_fair:,.2f}",
-                    f"λ={lambda_used:.3f}",
-                ),
-                (
-                    "Z* bỏ C5",
-                    f"{z_nofair:,.2f}",
-                    "không công bằng",
-                ),
-                (
-                    "Chi phí công bằng",
-                    f"{fairness_cost:,.2f}",
-                    f"{fairness_rate:.3f}% Z*",
-                ),
-                (
-                    "Chi phí trần vùng C3",
-                    f"{cap_cost:,.2f}",
-                    f"{cap_rate:.3f}% Z*",
-                ),
-            ]
-        )
-
-        region_compare = pd.DataFrame(
-            {
-                "Vùng": regions,
-                "Có công bằng": X_fair.sum(axis=1),
-                "Bỏ C5": X_nofair.sum(axis=1),
-                "Bỏ trần C3": X_no_cap.sum(axis=1),
-            }
-        )
-
-        st.dataframe(
-            region_compare,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        compare_long = region_compare.melt(
-            id_vars="Vùng",
-            var_name="Mô hình",
-            value_name="Ngân sách",
-        )
-
-        fig_compare = px.bar(
-            compare_long,
-            x="Vùng",
-            y="Ngân sách",
-            color="Mô hình",
-            barmode="group",
-            template=PLOT_TEMPLATE,
-            title="So sánh ngân sách vùng giữa ba mô hình",
-        )
-        fig_compare.update_layout(
-            height=500,
-            margin=dict(
-                l=10,
-                r=10,
-                t=54,
-                b=10,
-            ),
-        )
-
-        st.plotly_chart(
-            fig_compare,
-            use_container_width=True,
-        )
-
-    # =====================================================
-    # Tải kết quả
-    # =====================================================
-    export_df = allocation_fair.reset_index().rename(
-        columns={"index": "Vùng"}
-    )
-
-    st.download_button(
-        "Tải kết quả Bài 4 dạng CSV",
-        data=export_df.to_csv(
-            index=False
-        ).encode("utf-8-sig"),
-        file_name="bai4_lp_vung_ket_qua.csv",
-        mime="text/csv",
-        key="download_bai4_fixed",
-    )
-
-    # =====================================================
-    # 4.5. Thảo luận chính sách
-    # =====================================================
-    st.markdown("## 4.5. Câu hỏi thảo luận chính sách")
-
-    region_totals_nofair = X_nofair.sum(axis=1)
-    dominant_region = regions[
-        int(np.argmax(region_totals_nofair))
-    ]
-
-    with st.expander(
-        "a) Nếu bỏ công bằng, vốn chảy về đâu và hậu quả là gì?",
-        expanded=True,
-    ):
-        st.markdown(
-            f"Khi bỏ C5, vùng nhận ngân sách lớn nhất là **{dominant_region}**. "
-            "Nguyên nhân là vùng này có tổ hợp hệ số tác động cao, đặc biệt ở D và AI. "
-            "Tuy nhiên, tập trung kéo dài có thể mở rộng khoảng cách số, làm giảm cơ hội "
-            "tiếp cận dịch vụ số và năng lực hấp thụ công nghệ của các vùng yếu hơn."
-        )
-
-    with st.expander(
-        "b) Ràng buộc trần ngân sách mỗi vùng C3 làm giảm Z* bao nhiêu phần trăm? Có chấp nhận được không?",
-        expanded=True,
-    ):
-        st.markdown(
-            f"So với mô hình bỏ trần vùng, C3 làm Z* giảm khoảng "
-            f"**{cap_cost:,.2f}**, tương đương **{cap_rate:.3f}%**. "
-            "Đây có thể được xem là chi phí hiệu quả của phân quyền và chống tập trung. "
-            "Mức giảm có chấp nhận được hay không phụ thuộc vào mục tiêu cân bằng vùng."
-        )
-
-    with st.expander(
-        "c) Tây Nguyên nên ưu tiên AI hay H và I?",
-        expanded=True,
-    ):
-        tay_nguyen = pd.Series(
-            X_fair[3],
-            index=items,
-        ).sort_values(
-            ascending=False
-        )
-
-        st.markdown(
-            f"Trong nghiệm đang chọn, hạng mục lớn nhất tại Tây Nguyên là "
-            f"**{tay_nguyen.index[0]}** với khoảng **{tay_nguyen.iloc[0]:,.0f} tỷ VND**. "
-            "Do hệ số AI của Tây Nguyên thấp nhưng hệ số H và I cao, mô hình thường ưu tiên "
-            "nhân lực, hạ tầng và khoản D cần thiết để đáp ứng công bằng trước khi mở rộng AI."
-        )
-
-    st.info(
-        f"Ghi chú kỹ thuật về λ: λ=0,70 là tham số của đề nhưng không khả thi với bộ dữ liệu "
-        f"và trần 12.000. Vì vậy bài làm cần báo cáo bất khả thi, chỉ ra nguyên nhân, rồi mới "
-        f"phân tích độ nhạy. Giá trị lớn nhất khả thi hiện tại khoảng **{lambda_max:.4f}**; "
-        f"λ={lambda_used:.3f} chỉ là kịch bản hiệu chỉnh để tiếp tục so sánh solver và phân tích chính sách."
-    )
+    ai_analysis_panel(lesson_name="Bài 4 — LP ngành–vùng", model_name="LP 24 biến + Fairness Constraint",
+        input_params={"lambda": lambda_used, "total_budget": total_budget},
+        result_data=_collect_ai_context(locals()), key="ai_bai_4")
 
 
-    ai_analysis_panel(
-        lesson_name='Bài 4 - LP phân bổ ngân sách số theo vùng',
-        model_name='Regional Linear Programming + Fairness Constraint',
-        input_params={"lesson": 'Bài 4 - LP phân bổ ngân sách số theo vùng', "model": 'Regional Linear Programming + Fairness Constraint'},
-        result_data=_collect_ai_context(locals()),
-        key="ai_bai_4",
-    )
-
-
-def _b5_project_table():
-    """Danh mục 15 dự án đúng theo đề Bài 5."""
-    rows = [
-        ["P1", "Trung tâm dữ liệu quốc gia Hòa Lạc", "Hạ tầng", 12000, 21500, 8500, 3500],
-        ["P2", "Trung tâm dữ liệu quốc gia phía Nam", "Hạ tầng", 11500, 20800, 7500, 4000],
-        ["P3", "Hệ thống 5G phủ sóng toàn quốc", "Hạ tầng", 18000, 32500, 12000, 6000],
-        ["P4", "Hệ thống định danh điện tử VNeID 2.0", "Chính phủ số", 4500, 9200, 3500, 1000],
-        ["P5", "Cổng dịch vụ công quốc gia v3", "Chính phủ số", 3200, 6800, 2500, 700],
-        ["P6", "Y tế số quốc gia (hồ sơ sức khỏe)", "Y tế số", 5800, 11400, 4000, 1800],
-        ["P7", "Giáo dục số K-12 toàn quốc", "Giáo dục", 6500, 12200, 4500, 2000],
-        ["P8", "Trung tâm AI quốc gia + supercomputing", "AI", 15000, 28500, 9000, 6000],
-        ["P9", "Sandbox tài chính số (fintech)", "Tài chính số", 2500, 5800, 1800, 700],
-        ["P10", "Logistics thông minh + cảng biển số", "Logistics", 7200, 13800, 5000, 2200],
-        ["P11", "Nông nghiệp số ĐBSCL", "Nông nghiệp", 4800, 8500, 3500, 1300],
-        ["P12", "Đào tạo 50.000 kỹ sư AI/bán dẫn", "Nhân lực", 8500, 16200, 5500, 3000],
-        ["P13", "Khu CN bán dẫn Bắc Ninh - Bắc Giang", "Bán dẫn", 20000, 35000, 13000, 7000],
-        ["P14", "An ninh mạng quốc gia (SOC)", "An ninh", 3800, 7500, 2800, 1000],
-        ["P15", "Open Data + dữ liệu mở quốc gia", "Dữ liệu", 1500, 3800, 1200, 300],
-    ]
-    df = pd.DataFrame(
-        rows,
-        columns=["Mã", "Tên dự án", "Lĩnh vực", "Chi phí", "Lợi ích NPV", "Năm 1-2", "Năm 3-5"],
-    )
-
-    def probability(field):
-        if field == "Hạ tầng":
-            return 0.85
-        if field == "Chính phủ số":
-            return 0.75
-        if field in {"AI", "Bán dẫn"}:
-            return 0.65
-        return 0.80
-
-    df["p hoàn thành"] = df["Lĩnh vực"].map(probability)
-    df["Lợi ích kỳ vọng"] = df["p hoàn thành"] * df["Lợi ích NPV"]
-    df["NPV/Chi phí"] = df["Lợi ích NPV"] / df["Chi phí"]
-    return df
-
-
-def _b5_check_vector(selection, df, budget=80000.0, budget_12=40000.0, force_p1_p2=False, keep_exclusion=True):
-    """Kiểm tra các ràng buộc C1-C7 đúng theo đề Bài 5."""
-    y = np.asarray(selection, dtype=int)
-    code_to_idx = {code: idx for idx, code in enumerate(df["Mã"].tolist())}
-    total_cost = float(np.dot(y, df["Chi phí"].to_numpy(dtype=float)))
-    year12 = float(np.dot(y, df["Năm 1-2"].to_numpy(dtype=float)))
-    count = int(y.sum())
-
-    checks = [
-        total_cost <= float(budget) + 1e-7,
-        year12 <= float(budget_12) + 1e-7,
-        count >= 7,
-        count <= 11,
-        y[code_to_idx["P8"]] <= y[code_to_idx["P12"]],
-        y[code_to_idx["P13"]] <= y[code_to_idx["P12"]],
-        y[code_to_idx["P4"]] + y[code_to_idx["P5"]] >= 1,
-        y[code_to_idx["P14"]] >= 1,
-    ]
-    if keep_exclusion:
-        checks.append(y[code_to_idx["P1"]] + y[code_to_idx["P2"]] <= 1)
-    if force_p1_p2:
-        checks.append(y[code_to_idx["P1"]] == 1)
-        checks.append(y[code_to_idx["P2"]] == 1)
-    return bool(all(checks))
-
-
-def _b5_solve_enumeration(budget=80000.0, budget_12=40000.0, risk_adjusted=False, force_p1_p2=False, keep_exclusion=True):
-    """Giải MIP bằng vét cạn 2^15 tổ hợp để không phụ thuộc solver ngoài."""
-    df = _b5_project_table()
-    objective_col = "Lợi ích kỳ vọng" if risk_adjusted else "Lợi ích NPV"
-    values = df[objective_col].to_numpy(dtype=float)
-    best_value = -np.inf
-    best_selection = None
-
-    for mask in range(1 << len(df)):
-        y = np.array([(mask >> i) & 1 for i in range(len(df))], dtype=int)
-        if not _b5_check_vector(
-            y,
-            df,
-            budget=budget,
-            budget_12=budget_12,
-            force_p1_p2=force_p1_p2,
-            keep_exclusion=keep_exclusion,
-        ):
-            continue
-        value = float(np.dot(y, values))
-        if value > best_value + 1e-9:
-            best_value = value
-            best_selection = y.copy()
-
-    if best_selection is None:
-        return {"success": False, "status": "Infeasible", "solver": "Enumeration", "selection": None, "objective": np.nan}
-    return {"success": True, "status": "Optimal", "solver": "Enumeration exact", "selection": best_selection, "objective": best_value}
-
-
-def _b5_solve_mip(budget=80000.0, budget_12=40000.0, risk_adjusted=False, force_p1_p2=False, keep_exclusion=True):
-    """Giải Bài 5. Ưu tiên PuLP/CBC, fallback vét cạn cho môi trường thiếu PuLP."""
-    df = _b5_project_table()
-    try:
-        import pulp
-    except ModuleNotFoundError:
-        return _b5_solve_enumeration(budget, budget_12, risk_adjusted, force_p1_p2, keep_exclusion)
-
-    codes = df["Mã"].tolist()
-    objective_col = "Lợi ích kỳ vọng" if risk_adjusted else "Lợi ích NPV"
-    model = pulp.LpProblem("VN_Project_Selection_Exact", pulp.LpMaximize)
-    y = {code: pulp.LpVariable(f"y_{code}", cat="Binary") for code in codes}
-
-    model += pulp.lpSum(float(df.loc[i, objective_col]) * y[codes[i]] for i in range(len(df)))
-    model += pulp.lpSum(float(df.loc[i, "Chi phí"]) * y[codes[i]] for i in range(len(df))) <= float(budget), "C1_Total_Budget"
-    model += pulp.lpSum(float(df.loc[i, "Năm 1-2"]) * y[codes[i]] for i in range(len(df))) <= float(budget_12), "C2_Year_1_2"
-    if keep_exclusion:
-        model += y["P1"] + y["P2"] <= 1, "C3_Data_Center_Exclusion"
-    model += y["P8"] <= y["P12"], "C4_AI_requires_training"
-    model += y["P13"] <= y["P12"], "C5_Semiconductor_requires_training"
-    model += y["P4"] + y["P5"] >= 1, "C6_At_least_one_eGov"
-    model += y["P14"] >= 1, "C6_Cybersecurity_mandatory"
-    model += pulp.lpSum(y[code] for code in codes) >= 7, "C7_Min_projects"
-    model += pulp.lpSum(y[code] for code in codes) <= 11, "C7_Max_projects"
-    if force_p1_p2:
-        model += y["P1"] == 1, "Force_P1"
-        model += y["P2"] == 1, "Force_P2"
-
-    status = model.solve(pulp.PULP_CBC_CMD(msg=False))
-    if pulp.LpStatus[status] != "Optimal":
-        return _b5_solve_enumeration(budget, budget_12, risk_adjusted, force_p1_p2, keep_exclusion)
-
-    selection = np.array([int(round(y[code].value())) for code in codes], dtype=int)
-    return {
-        "success": True,
-        "status": pulp.LpStatus[status],
-        "solver": "PuLP/CBC",
-        "selection": selection,
-        "objective": float(pulp.value(model.objective)),
-    }
-
-
-def _b5_result_table(result, budget=80000.0, budget_12=40000.0):
-    df = _b5_project_table()
-    if not result["success"]:
-        return pd.DataFrame(), {
-            "n_projects": 0,
-            "total_cost": np.nan,
-            "year12": np.nan,
-            "gross_benefit": np.nan,
-            "expected_benefit": np.nan,
-            "ratio": np.nan,
-            "unused_budget": np.nan,
-        }
-    selected = df.loc[np.asarray(result["selection"], dtype=int) == 1].copy()
-    metrics = {
-        "n_projects": int(len(selected)),
-        "total_cost": float(selected["Chi phí"].sum()),
-        "year12": float(selected["Năm 1-2"].sum()),
-        "gross_benefit": float(selected["Lợi ích NPV"].sum()),
-        "expected_benefit": float(selected["Lợi ích kỳ vọng"].sum()),
-        "ratio": float(selected["Lợi ích NPV"].sum() / max(selected["Chi phí"].sum(), 1e-12)),
-        "unused_budget": float(budget - selected["Chi phí"].sum()),
-        "unused_budget_12": float(budget_12 - selected["Năm 1-2"].sum()),
-    }
-    return selected.reset_index(drop=True), metrics
-
-
-def _b5_validation_table(result, budget=80000.0, budget_12=40000.0, force_p1_p2=False, keep_exclusion=True):
-    df = _b5_project_table()
-    if not result["success"]:
-        return pd.DataFrame([{"Ràng buộc": "Bài toán khả thi", "Giá trị": result["status"], "Đạt": False}])
-    y = np.asarray(result["selection"], dtype=int)
-    idx = {code: i for i, code in enumerate(df["Mã"].tolist())}
-    total_cost = float(np.dot(y, df["Chi phí"].to_numpy(dtype=float)))
-    year12 = float(np.dot(y, df["Năm 1-2"].to_numpy(dtype=float)))
-    count = int(y.sum())
-    rows = [
-        ["C1 Tổng ngân sách 5 năm ≤ B", f"{total_cost:,.0f} / {budget:,.0f}", total_cost <= budget + 1e-7],
-        ["C2 Ngân sách năm 1-2 ≤ 40.000", f"{year12:,.0f} / {budget_12:,.0f}", year12 <= budget_12 + 1e-7],
-        ["C3 y1 + y2 ≤ 1", int(y[idx["P1"]] + y[idx["P2"]]), (not keep_exclusion) or (y[idx["P1"]] + y[idx["P2"]] <= 1)],
-        ["C4 y8 ≤ y12", f"P8={y[idx['P8']]}, P12={y[idx['P12']]}", y[idx["P8"]] <= y[idx["P12"]]],
-        ["C5 y13 ≤ y12", f"P13={y[idx['P13']]}, P12={y[idx['P12']]}", y[idx["P13"]] <= y[idx["P12"]]],
-        ["C6 y4 + y5 ≥ 1", int(y[idx["P4"]] + y[idx["P5"]]), y[idx["P4"]] + y[idx["P5"]] >= 1],
-        ["C6 y14 ≥ 1", int(y[idx["P14"]]), y[idx["P14"]] >= 1],
-        ["C7 7 ≤ số dự án ≤ 11", count, 7 <= count <= 11],
-    ]
-    if force_p1_p2:
-        rows.append(["Yêu cầu mở rộng: bắt buộc P1 và P2", f"P1={y[idx['P1']]}, P2={y[idx['P2']]}", y[idx["P1"]] == 1 and y[idx["P2"]] == 1])
-    return pd.DataFrame(rows, columns=["Ràng buộc", "Giá trị", "Đạt"])
-
+# ──────────────────────────────────────────────────────────
+# BÀI 5 — MIP 15 dự án  (theme: xanh teal + đen hiện đại)
+# ──────────────────────────────────────────────────────────
 
 def page_5():
-    hero(
-        "Bài 5 — Quy hoạch nguyên hỗn hợp lựa chọn dự án chuyển đổi số",
-        "MIP với biến nhị phân đúng danh mục P1-P15 của đề: ngân sách 80.000, ngân sách năm 1-2, loại trừ, tiên quyết, dự án bắt buộc và mở rộng rủi ro.",
-        ["5.1-5.5", "MIP", "Binary", "CBC / Enumeration", "Exact constraints"],
-    )
+    _inject_page_css("""
+    .b5-project-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;
+                     border-radius:6px;font-size:.73rem;font-weight:700;margin:2px}
+    .b5-selected{background:rgba(20,184,166,.12);color:#0F766E;border:1px solid rgba(20,184,166,.35)}
+    .b5-rejected{background:rgba(156,163,175,.08);color:#9CA3AF;border:1px solid rgba(156,163,175,.25)}
+    .b5-metric{background:#F0FDFA;border:1px solid #ECECF1;border-radius:10px;
+               padding:13px 16px;margin-bottom:8px}
+    .b5-insight{background:#F0F9FF;border:1px solid #ECECF1;border-left:4px solid #0EA5E9;
+                border-radius:10px;padding:13px 16px;margin:8px 0;color:#0C4A6E}
+    """)
+
+    tags = "".join([_pill(t, "#0F766E", "rgba(15,118,110,.1)", "rgba(15,118,110,.3)")
+                    for t in ["5.1–5.5", "MIP", "Binary", "Knapsack", "CBC", "E[Z]", "Risk"]])
+    _banner("🔲", "Bài 5 — MIP lựa chọn 15 dự án chuyển đổi số",
+            "Mô hình nhị phân 0-1 với 7 ràng buộc: ngân sách, tiến độ năm 1-2, phụ thuộc, loại trừ, bắt buộc và xác suất hoàn thành.",
+            tags, "#0F766E")
 
     show_assignment_structure(5)
 
-    df = _b5_project_table()
-    st.markdown("## 5.1. Bối cảnh Việt Nam")
-    st.markdown(
-        """
-        Bộ Thông tin và Truyền thông lựa chọn danh mục dự án chuyển đổi số quốc gia
-        giai đoạn 2026-2030 với tổng ngân sách 80.000 tỷ VND. Bài toán dùng biến
-        nhị phân y_i để quyết định chọn hoặc không chọn từng dự án, đồng thời xét
-        ngân sách đa năm, ràng buộc loại trừ, ràng buộc tiên quyết và dự án bắt buộc.
-        """
-    )
+    df_proj = _b5_project_table()
 
-    st.markdown("## 5.2. Danh mục 15 dự án ứng cử P1-P15")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    # ── 5.1 Bối cảnh ──
+    st.markdown("## 5.1 · Bối cảnh")
+    c1, c2, c3, c4 = st.columns(4)
+    for col, icon, val, label in [
+        (c1, "📋", "15", "Dự án tiềm năng"),
+        (c2, "💵", "80.000 tỷ", "Ngân sách tổng"),
+        (c3, "⏱️", "40.000 tỷ", "Trần năm 1-2"),
+        (c4, "🎯", "Max NPV", "Hàm mục tiêu"),
+    ]:
+        with col:
+            st.markdown(f"""<div style="background:#fff;border:1px solid #ECECF1;border-top:3px solid #0F766E;border-radius:10px;
+                              padding:14px 14px 12px;text-align:center">
+              <div style="font-size:22px">{icon}</div>
+              <div style="font-size:1.2rem;font-weight:800;color:#0F766E;margin:4px 0;font-family:'Outfit',sans-serif">{val}</div>
+              <div style="color:#9CA3AF;font-size:.76rem">{label}</div>
+            </div>""", unsafe_allow_html=True)
 
-    st.markdown("## 5.3. Mô hình toán học")
-    st.latex(r"\max \sum_i B_i y_i")
-    st.latex(r"\sum_i C_i y_i \le 80{,}000,\quad \sum_i C_{1,i}y_i \le 40{,}000")
-    st.latex(r"y_1+y_2\le 1,\quad y_8\le y_{12},\quad y_{13}\le y_{12}")
-    st.latex(r"y_4+y_5\ge 1,\quad y_{14}\ge 1,\quad 7\le \sum_i y_i\le 11")
+    # ── 5.2 Danh mục ──
+    st.markdown("## 5.2 · Danh mục 15 dự án")
+    st.dataframe(df_proj, use_container_width=True, hide_index=True)
 
-    base = _b5_solve_mip(budget=80000, budget_12=40000, risk_adjusted=False)
-    base_selected, base_metrics = _b5_result_table(base, 80000, 40000)
+    # ── 5.3 Mô hình ──
+    st.markdown("## 5.3 · Mô hình MIP")
+    st.latex(r"\max\;Z = \sum_{i=1}^{15} B_i y_i \quad y_i \in \{0,1\}")
+    with st.expander("Xem đầy đủ 7 ràng buộc"):
+        st.markdown("""
+        - **C1**: Σ Cᵢyᵢ ≤ 80.000 (ngân sách tổng)
+        - **C2**: Σ C¹ᵢyᵢ ≤ 40.000 (năm 1-2)
+        - **C3**: Số dự án chọn ∈ [5, 10]
+        - **C4**: P14 bắt buộc (y₁₄ = 1) — an ninh mạng nền tảng
+        - **C5**: P1 và P2 loại trừ nhau (y₁ + y₂ ≤ 1)
+        - **C6**: P8 cần P3 (y₈ ≤ y₃) — tiên quyết
+        - **C7**: P13 cần P7 (y₁₃ ≤ y₇) — tiên quyết
+        """)
 
-    st.markdown("## 5.4. Yêu cầu lập trình")
+    # ── Solve base ──
+    base = _b5_solve_mip()
+    base_selected, base_metrics = _b5_result_table(base)
 
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "5.4.1 - MIP chuẩn",
-        "5.4.2 - B=100.000",
-        "5.4.3 - Bắt buộc P1 & P2",
-        "5.4.4 - Rủi ro dự án",
-    ])
+    # ── 5.4 Tabs ──
+    st.markdown("## 5.4 · Yêu cầu lập trình")
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["🎯 5.4.1 — Kết quả chính", "💰 5.4.2 — Nới B→100k", "🔒 5.4.3 — Bắt buộc P1+P2", "🎲 5.4.4 — E[Z] rủi ro"])
 
     with tab1:
-        st.markdown("### Câu 5.4.1. Nghiệm tối ưu với ngân sách 80.000 tỷ")
-        if not base["success"]:
-            st.error("Bài toán chuẩn không khả thi.")
-        else:
-            kpi_cards([
-                ("Solver", base["solver"], base["status"]),
-                ("Số dự án", f"{base_metrics['n_projects']}", "yᵢ = 1"),
-                ("Tổng chi phí", f"{base_metrics['total_cost']:,.0f}", "tỷ VND"),
-                ("Tổng lợi ích", f"{base_metrics['gross_benefit']:,.0f}", "tỷ VND NPV"),
-                ("NPV/Chi phí", f"{base_metrics['ratio']:.3f}", "hiệu quả danh mục"),
-            ])
-            st.dataframe(base_selected, use_container_width=True, hide_index=True)
-            st.dataframe(_b5_validation_table(base), use_container_width=True, hide_index=True)
-            fig = px.bar(base_selected, x="Mã", y=["Chi phí", "Lợi ích NPV"], barmode="group", template=PLOT_TEMPLATE, title="Chi phí và lợi ích các dự án được chọn")
-            fig.update_layout(height=430)
-            st.plotly_chart(fig, use_container_width=True)
+        if base["success"]:
+            _kpi_row([("Lợi ích NPV Z*", f"{base_metrics['gross_benefit']:,.0f}", "tỷ VND"),
+                      ("Số dự án chọn", str(base_metrics["n_projects"]), f"/{len(df_proj)}"),
+                      ("Tổng chi phí", f"{base_metrics['total_cost']:,.0f}", f"/ 80.000 tỷ"),
+                      ("NPV/Chi phí", f"{base_metrics['ratio']:.2f}x", "hiệu quả vốn")])
+            c1, c2 = st.columns([1.1, 1])
+            with c1:
+                st.dataframe(base_selected, use_container_width=True, hide_index=True)
+            with c2:
+                # project chips
+                st.markdown("**Dự án được chọn:**")
+                all_codes = df_proj["Mã"].tolist()
+                sel_codes = set(base_selected["Mã"].tolist()) if base["success"] else set()
+                chip_html = "".join([
+                    f'<span class="b5-project-chip {"b5-selected" if c in sel_codes else "b5-rejected"}">{"✓ " if c in sel_codes else "✗ "}{c}</span>'
+                    for c in all_codes])
+                st.markdown(chip_html, unsafe_allow_html=True)
+
+                val_tbl = _b5_validation_table(base)
+                st.dataframe(val_tbl, use_container_width=True, hide_index=True)
 
     with tab2:
-        st.markdown("### Câu 5.4.2. Nới ngân sách tổng lên 100.000 tỷ")
-        more = _b5_solve_mip(budget=100000, budget_12=40000, risk_adjusted=False)
-        more_selected, more_metrics = _b5_result_table(more, 100000, 40000)
-        compare = pd.DataFrame({
-            "Chỉ tiêu": ["Số dự án", "Tổng chi phí", "Năm 1-2", "Lợi ích NPV", "NPV/Chi phí"],
-            "B=80.000": [base_metrics["n_projects"], base_metrics["total_cost"], base_metrics["year12"], base_metrics["gross_benefit"], base_metrics["ratio"]],
-            "B=100.000": [more_metrics["n_projects"], more_metrics["total_cost"], more_metrics["year12"], more_metrics["gross_benefit"], more_metrics["ratio"]],
-        })
-        st.dataframe(compare, use_container_width=True, hide_index=True)
-        st.dataframe(more_selected, use_container_width=True, hide_index=True)
+        more = _b5_solve_mip(budget=100000, budget_12=40000)
+        more_selected, more_metrics = _b5_result_table(more, 100000)
         base_codes = set(base_selected["Mã"]) if base["success"] else set()
         more_codes = set(more_selected["Mã"]) if more["success"] else set()
-        st.info("Dự án thêm khi tăng ngân sách: " + (", ".join(sorted(more_codes - base_codes)) or "Không có thay đổi"))
+        _kpi_row([("Z* B=80k", f"{base_metrics['gross_benefit']:,.0f}", "tỷ VND"),
+                  ("Z* B=100k", f"{more_metrics['gross_benefit']:,.0f}", "tỷ VND"),
+                  ("Dự án thêm", str(more_metrics["n_projects"]-base_metrics["n_projects"]), "khi tăng ngân sách"),
+                  ("ΔZ*", f"{more_metrics['gross_benefit']-base_metrics['gross_benefit']:+,.0f}", "lợi ích tăng thêm")])
+        st.dataframe(more_selected, use_container_width=True, hide_index=True)
+        added = sorted(more_codes - base_codes)
+        st.markdown(f'<div class="b5-insight">Dự án thêm khi B tăng lên 100.000: <b>{", ".join(added) or "Không có"}</b></div>', unsafe_allow_html=True)
 
     with tab3:
-        st.markdown("### Câu 5.4.3. Quốc hội yêu cầu có cả P1 và P2")
-        st.caption("Kịch bản này bỏ ràng buộc loại trừ y1+y2≤1 và thay bằng y1=y2=1 để kiểm tra redundancy.")
-        red = _b5_solve_mip(budget=80000, budget_12=40000, risk_adjusted=False, force_p1_p2=True, keep_exclusion=False)
-        red_selected, red_metrics = _b5_result_table(red, 80000, 40000)
+        red = _b5_solve_mip(force_p1_p2=True, keep_exclusion=False)
+        red_selected, red_metrics = _b5_result_table(red)
         if not red["success"]:
-            st.error("Bài toán không khả thi khi bắt buộc chọn cả P1 và P2.")
+            st.error("Không khả thi khi bắt buộc P1 và P2.")
         else:
-            kpi_cards([
-                ("Trạng thái", "Khả thi", red["solver"]),
-                ("Lợi ích mới", f"{red_metrics['gross_benefit']:,.0f}", "tỷ VND"),
-                ("Thay đổi Z*", f"{red_metrics['gross_benefit']-base_metrics['gross_benefit']:+,.0f}", "so với mô hình gốc"),
-                ("Chi phí", f"{red_metrics['total_cost']:,.0f}", "tỷ VND"),
-            ])
+            _kpi_row([("Trạng thái", "Khả thi ✓", "P1 + P2 bắt buộc"),
+                      ("Z* mới", f"{red_metrics['gross_benefit']:,.0f}", "tỷ VND"),
+                      ("ΔZ*", f"{red_metrics['gross_benefit']-base_metrics['gross_benefit']:+,.0f}", "so với gốc"),
+                      ("Chi phí", f"{red_metrics['total_cost']:,.0f}", "tỷ VND")])
             st.dataframe(red_selected, use_container_width=True, hide_index=True)
-            st.dataframe(_b5_validation_table(red, force_p1_p2=True, keep_exclusion=False), use_container_width=True, hide_index=True)
 
     with tab4:
-        st.markdown("### Câu 5.4.4. Tối đa hóa lợi ích kỳ vọng E[Z] = Σ pᵢBᵢyᵢ")
-        risk = _b5_solve_mip(budget=80000, budget_12=40000, risk_adjusted=True)
-        risk_selected, risk_metrics = _b5_result_table(risk, 80000, 40000)
-        kpi_cards([
-            ("E[Z]", f"{risk_metrics['expected_benefit']:,.0f}", "tỷ VND kỳ vọng"),
-            ("NPV gộp", f"{risk_metrics['gross_benefit']:,.0f}", "trước điều chỉnh rủi ro"),
-            ("Số dự án", f"{risk_metrics['n_projects']}", "danh mục rủi ro"),
-            ("Chi phí", f"{risk_metrics['total_cost']:,.0f}", "tỷ VND"),
-        ])
-        st.dataframe(risk_selected, use_container_width=True, hide_index=True)
-        base_codes = set(base_selected["Mã"]) if base["success"] else set()
+        risk = _b5_solve_mip(risk_adjusted=True)
+        risk_selected, risk_metrics = _b5_result_table(risk)
         risk_codes = set(risk_selected["Mã"]) if risk["success"] else set()
-        st.dataframe(pd.DataFrame({
-            "Nhóm": ["Cùng được chọn", "Chỉ mô hình NPV chọn", "Chỉ mô hình rủi ro chọn"],
-            "Dự án": [", ".join(sorted(base_codes & risk_codes)) or "Không có", ", ".join(sorted(base_codes - risk_codes)) or "Không có", ", ".join(sorted(risk_codes - base_codes)) or "Không có"],
-        }), use_container_width=True, hide_index=True)
+        base_codes2 = set(base_selected["Mã"]) if base["success"] else set()
+        _kpi_row([("E[Z] kỳ vọng", f"{risk_metrics['expected_benefit']:,.0f}", "tỷ VND"),
+                  ("NPV gộp", f"{risk_metrics['gross_benefit']:,.0f}", "trước điều chỉnh rủi ro"),
+                  ("Dự án chọn", str(risk_metrics["n_projects"]), "mô hình rủi ro"),
+                  ("Khác biệt", str(len(risk_codes.symmetric_difference(base_codes2))), "dự án thay đổi")])
+        diff_tbl = pd.DataFrame({
+            "Nhóm": ["Cùng chọn", "Chỉ mô hình NPV", "Chỉ mô hình E[Z]"],
+            "Dự án": [", ".join(sorted(base_codes2 & risk_codes)) or "—",
+                      ", ".join(sorted(base_codes2 - risk_codes)) or "—",
+                      ", ".join(sorted(risk_codes - base_codes2)) or "—"],
+        })
+        st.dataframe(diff_tbl, use_container_width=True, hide_index=True)
 
-    export = base_selected if base["success"] else df
-    st.download_button(
-        "Tải kết quả Bài 5 dạng CSV",
-        data=export.to_csv(index=False).encode("utf-8-sig"),
-        file_name="bai5_mip_du_an_chuyen_doi_so.csv",
-        mime="text/csv",
-        key="download_bai5_exact",
-    )
+    st.download_button("⬇️ Tải kết quả Bài 5 (CSV)",
+        data=base_selected.to_csv(index=False).encode("utf-8-sig"),
+        file_name="bai5_mip_du_an.csv", mime="text/csv", key="dl_b5")
 
-    st.markdown("## 5.5. Câu hỏi thảo luận chính sách")
-    with st.expander("a) Vì sao mô hình có thể bỏ qua P15 dù B/C cao? Đây có phải kết quả mong muốn không?", expanded=True):
+    # ── 5.5 ──
+    st.markdown("## 5.5 · Thảo luận chính sách")
+    with st.expander("a) Vì sao P15 B/C cao nhưng có thể bị loại?", expanded=True):
         chosen = "được chọn" if (base["success"] and "P15" in set(base_selected["Mã"])) else "không được chọn"
-        st.markdown(f"P15 **{chosen}** trong nghiệm chuẩn. Một dự án B/C cao vẫn có thể bị loại vì MIP xét đồng thời ngân sách năm 1-2, số lượng dự án, dự án bắt buộc P14, số lượng dự án tối thiểu/tối đa và các quan hệ tiên quyết; không phải chỉ xếp hạng B/C. Về chính sách, nếu P15 là hạ tầng dữ liệu nền tảng cho nhiều dự án khác thì việc bị loại **chưa chắc là kết quả mong muốn**; khi đó nên bổ sung ràng buộc bắt buộc dữ liệu mở hoặc thêm lợi ích cộng hưởng của P15 vào hàm mục tiêu.")
-    with st.expander("b) Bắt buộc P14 có hợp lý không?", expanded=True):
-        st.markdown("Ràng buộc P14 phản ánh an ninh mạng là điều kiện nền cho mọi hạ tầng số. Nó có thể làm giảm Z* nếu P14 không nằm trong danh mục tối ưu tự do, nhưng hợp lý về quản trị rủi ro hệ thống.")
-    with st.expander("c) Mô hình hóa cộng hưởng P8 và P13 như thế nào?", expanded=True):
-        st.markdown("Có thể thêm biến nhị phân z₈,₁₃ với z≤y8, z≤y13, z≥y8+y13−1 rồi cộng thêm lợi ích synergy·z vào hàm mục tiêu. Đây là cách tuyến tính hóa hiệu ứng bổ trợ giữa AI/bán dẫn và đào tạo nhân lực.")
+        st.markdown(f"P15 **{chosen}** trong nghiệm chuẩn. MIP xét đồng thời ngân sách, tiến độ năm 1-2, dự án bắt buộc, tiên quyết — không chỉ B/C. Nếu P15 là hạ tầng dữ liệu nền tảng, cần bổ sung ràng buộc bắt buộc.")
+    with st.expander("b) Bắt buộc P14 (an ninh mạng) có hợp lý không?", expanded=True):
+        st.markdown("Hợp lý. An ninh mạng là điều kiện nền cho mọi dự án số. Dù P14 có thể làm giảm Z* nếu không nằm trong danh mục tối ưu tự do, rủi ro hệ thống nếu bỏ qua lớn hơn nhiều.")
+    with st.expander("c) Mô hình hóa cộng hưởng P8 & P13 như thế nào?", expanded=True):
+        st.markdown("Thêm biến z₈,₁₃ với z≤y₈, z≤y₁₃, z≥y₈+y₁₃−1 rồi cộng synergy·z vào mục tiêu. Đây là cách tuyến tính hóa hiệu ứng bổ trợ giữa AI/bán dẫn và đào tạo nhân lực.")
 
-
-    ai_analysis_panel(
-        lesson_name='Bài 5 - MIP lựa chọn dự án chuyển đổi số',
-        model_name='Mixed Integer Programming + Binary Project Selection',
-        input_params={"lesson": 'Bài 5 - MIP lựa chọn dự án chuyển đổi số', "model": 'Mixed Integer Programming + Binary Project Selection'},
-        result_data=_collect_ai_context(locals()),
-        key="ai_bai_5",
-    )
-
-def _b6_prepare_data():
-    """Chuẩn bị dữ liệu, tiêu chí, loại tiêu chí và trọng số chuyên gia."""
-    df = load_regions().copy()
-
-    criteria = [
-        "grdp_per_capita_million_VND",
-        "fdi_registered_billion_USD",
-        "digital_index_0_100",
-        "ai_readiness_0_100",
-        "trained_labor_pct",
-        "rd_intensity_pct",
-        "internet_penetration_pct",
-        "gini_coef",
-    ]
-
-    is_benefit = [
-        True,
-        True,
-        True,
-        True,
-        True,
-        True,
-        True,
-        False,
-    ]
-
-    expert_weights = np.array(
-        [
-            0.10,
-            0.10,
-            0.15,
-            0.20,
-            0.15,
-            0.15,
-            0.05,
-            0.10,
-        ],
-        dtype=float,
-    )
-
-    return df, criteria, is_benefit, expert_weights
-
-
-def _b6_labels():
-    """Nhãn tiếng Việt của các tiêu chí."""
-    return {
-        "grdp_per_capita_million_VND": "GRDP/người",
-        "fdi_registered_billion_USD": "FDI đăng ký",
-        "digital_index_0_100": "Digital Index",
-        "ai_readiness_0_100": "AI Readiness",
-        "trained_labor_pct": "Lao động qua đào tạo",
-        "rd_intensity_pct": "R&D/GDP",
-        "internet_penetration_pct": "Internet",
-        "gini_coef": "Gini",
-    }
-
-
-def _b6_entropy_weights(df, criteria, is_benefit):
-    """
-    Tính trọng số Entropy.
-
-    Trước khi tính Entropy, toàn bộ tiêu chí được chuyển về hướng
-    giá trị lớn hơn là tốt hơn và chuẩn hóa min-max.
-    """
-    transformed = pd.DataFrame(index=df.index)
-
-    for criterion, benefit in zip(criteria, is_benefit):
-        if benefit:
-            transformed[criterion] = minmax(df[criterion])
-        else:
-            transformed[criterion] = reverse_minmax(df[criterion])
-
-    weights = entropy_weights_positive(
-        transformed.to_numpy(dtype=float)
-    )
-
-    return weights, transformed
-
-
-def _b6_rank_result(df, scores, score_name):
-    """Tạo bảng điểm và thứ hạng."""
-    result = pd.DataFrame(
-        {
-            "Vùng": df["region_name_vi"],
-            score_name: np.asarray(scores, dtype=float),
-        }
-    )
-
-    result["Xếp hạng"] = (
-        result[score_name]
-        .rank(
-            ascending=False,
-            method="min",
-        )
-        .astype(int)
-    )
-
-    return result.sort_values(
-        ["Xếp hạng", score_name],
-        ascending=[True, False],
-    ).reset_index(drop=True)
-
-
-def _b6_ahp_pairwise_matrix():
-    """
-    Ma trận so sánh cặp AHP minh họa theo thang Saaty.
-
-    Thứ tự:
-    GRDP, FDI, Digital, AI, Lao động, R&D, Internet, Gini.
-
-    Ma trận được nhập trực tiếp từ các đánh giá cặp, không suy ra
-    bằng phép chia bộ trọng số chuyên gia.
-    """
-    n = 8
-    matrix = np.ones((n, n), dtype=float)
-
-    judgments = {
-        (0, 1): 1,
-        (0, 2): 1 / 2,
-        (0, 3): 1 / 3,
-        (0, 4): 1 / 2,
-        (0, 5): 1 / 2,
-        (0, 6): 2,
-        (0, 7): 1,
-
-        (1, 2): 1 / 2,
-        (1, 3): 1 / 3,
-        (1, 4): 1 / 2,
-        (1, 5): 1 / 2,
-        (1, 6): 2,
-        (1, 7): 1,
-
-        (2, 3): 1 / 2,
-        (2, 4): 1,
-        (2, 5): 1,
-        (2, 6): 3,
-        (2, 7): 2,
-
-        (3, 4): 2,
-        (3, 5): 2,
-        (3, 6): 4,
-        (3, 7): 3,
-
-        (4, 5): 1,
-        (4, 6): 3,
-        (4, 7): 2,
-
-        (5, 6): 3,
-        (5, 7): 2,
-
-        (6, 7): 1 / 2,
-    }
-
-    for (i, j), value in judgments.items():
-        matrix[i, j] = float(value)
-        matrix[j, i] = 1.0 / float(value)
-
-    return matrix
-
-
-def _b6_ahp_weights(pairwise_matrix):
-    """
-    Tính vector trọng số AHP và tỷ lệ nhất quán CR.
-    """
-    pairwise_matrix = np.asarray(
-        pairwise_matrix,
-        dtype=float,
-    )
-
-    eigenvalues, eigenvectors = np.linalg.eig(
-        pairwise_matrix
-    )
-
-    principal_index = int(
-        np.argmax(eigenvalues.real)
-    )
-
-    lambda_max = float(
-        eigenvalues[principal_index].real
-    )
-
-    principal_vector = np.abs(
-        eigenvectors[:, principal_index].real
-    )
-
-    weights = (
-        principal_vector
-        / principal_vector.sum()
-    )
-
-    n = pairwise_matrix.shape[0]
-
-    consistency_index = (
-        (lambda_max - n) / (n - 1)
-        if n > 1
-        else 0.0
-    )
-
-    random_index_table = {
-        1: 0.00,
-        2: 0.00,
-        3: 0.58,
-        4: 0.90,
-        5: 1.12,
-        6: 1.24,
-        7: 1.32,
-        8: 1.41,
-        9: 1.45,
-        10: 1.49,
-    }
-
-    random_index = random_index_table.get(
-        n,
-        1.49,
-    )
-
-    consistency_ratio = (
-        consistency_index / random_index
-        if random_index > 0
-        else 0.0
-    )
-
-    return (
-        weights,
-        lambda_max,
-        consistency_index,
-        consistency_ratio,
-    )
-
-
-def _b6_rank_stability_table(
-    df,
-    expert_score,
-    entropy_score,
-    ahp_score,
-):
-    """So sánh thứ hạng của ba phương pháp."""
-    comparison = pd.DataFrame(
-        {
-            "Vùng": df["region_name_vi"],
-            "TOPSIS chuyên gia": expert_score,
-            "TOPSIS Entropy": entropy_score,
-            "TOPSIS AHP": ahp_score,
-        }
-    )
-
-    comparison["Hạng chuyên gia"] = (
-        comparison["TOPSIS chuyên gia"]
-        .rank(ascending=False, method="min")
-        .astype(int)
-    )
-
-    comparison["Hạng Entropy"] = (
-        comparison["TOPSIS Entropy"]
-        .rank(ascending=False, method="min")
-        .astype(int)
-    )
-
-    comparison["Hạng AHP"] = (
-        comparison["TOPSIS AHP"]
-        .rank(ascending=False, method="min")
-        .astype(int)
-    )
-
-    comparison["Biên độ hạng"] = (
-        comparison[
-            [
-                "Hạng chuyên gia",
-                "Hạng Entropy",
-                "Hạng AHP",
-            ]
-        ].max(axis=1)
-        - comparison[
-            [
-                "Hạng chuyên gia",
-                "Hạng Entropy",
-                "Hạng AHP",
-            ]
-        ].min(axis=1)
-    )
-
-    return comparison.sort_values(
-        "Hạng chuyên gia"
-    ).reset_index(drop=True)
-
-
+    ai_analysis_panel(lesson_name="Bài 5 — MIP 15 dự án",
+        model_name="Mixed Integer Programming + Binary Selection + E[Z]",
+        input_params={"budget": 80000, "budget_12": 40000},
+        result_data=_collect_ai_context(locals()), key="ai_bai_5")
 def page_6():
     hero(
         "Bài 6 — TOPSIS xếp hạng 6 vùng kinh tế theo ưu tiên đầu tư AI",
